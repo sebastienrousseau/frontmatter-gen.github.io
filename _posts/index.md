@@ -36,7 +36,7 @@ theme_color: "#22242f"
 <a class="primary" href="/getting-started/index.html">Install Crate &amp; CLI</a>
 <a href="/formats/index.html">Explore Supported Formats</a>
 </div>
-<ul class="hero-assurances" aria-label="Core assurances">
+<ul class="hero-assurances">
 <li>YAML 1.2, TOML 1.1 &amp; JSON</li>
 <li>Zero-Copy Body Slicing</li>
 <li>#![forbid(unsafe_code)] + Miri Verified</li>

@@ -63,8 +63,8 @@ jobs:
         run: |
           rm -rf public
           ssg build --content _posts --template _layouts --output public
-          ssg audit -f ssg.toml -o public --severity warn --fail-on warn
           python3 scripts/post-build.py
+          ssg audit -f ssg.toml -o public --severity warn --fail-on warn
           python3 scripts/regression-test.py
 
       - name: Package website, SBOM, and checksums
@@ -78,8 +78,8 @@ jobs:
         run: |
           rm -rf public
           ssg build --content _posts --template _layouts --output public > /dev/null
-          ssg audit -f ssg.toml -o public --severity warn --fail-on warn > /dev/null
           python3 scripts/post-build.py > /dev/null
+          ssg audit -f ssg.toml -o public --severity warn --fail-on warn > /dev/null
           python3 scripts/release_backfill.py --src . --tag "v${RELEASE_VERSION}" --out "$RUNNER_TEMP/rebuild" --mtime "$SOURCE_DATE_EPOCH"
           if ! diff dist/SHA256SUMS "$RUNNER_TEMP/rebuild/SHA256SUMS"; then
             echo "::error::Release build is not reproducible. Diff in SHA256SUMS:"

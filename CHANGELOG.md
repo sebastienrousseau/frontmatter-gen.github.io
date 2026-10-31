@@ -6,6 +6,13 @@ All notable changes to this website are documented here. The format follows
 
 ## [Unreleased]
 
+## [0.0.2] - 2026-10-31
+### Changed
+- Bumped the `python-test` dependency group in `requirements/` (`hypothesis` 6.170.13 and `pytest` 9.2.0).
+### Fixed
+- Removed redundant `aria-label` on `<ul class="hero-assurances">` in `_posts/index.md` to satisfy `html-validate@10` (`aria-label-misuse`) in CI and unblock GitHub Pages deployment.
+- Ordered `python3 scripts/post-build.py` before `ssg audit` in `.github/workflows/release.yml` so `/.well-known/security.txt` is present during release link auditing, and preserved `docs/_csp/` assets in `.github/workflows/ci.yml`.
+
 ## [0.0.1] - 2026-10-31
 
 ### Added

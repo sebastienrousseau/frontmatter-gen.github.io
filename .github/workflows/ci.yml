@@ -90,7 +90,7 @@ jobs:
         run: |
           rsync -a --delete \
             --exclude '.meta/' --exclude '.ssg/' --exclude '.ssg-cache/' \
-            --exclude '.ssg-plugin-cache.json' --exclude '_csp' --exclude '_headers' \
+            --exclude '.ssg-plugin-cache.json' --exclude '_headers' \
             docs/ _site/
           test -s _site/index.html
           test "$(cat _site/CNAME)" = "frontmatter-gen.com"
