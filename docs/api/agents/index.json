@@ -1,0 +1,21 @@
+{
+  "api": "ssg-agent-api",
+  "counts": {
+    "posts": 19,
+    "topics": 0
+  },
+  "links": {
+    "index": "https://frontmatter-gen.com/api/agents/index.json",
+    "person": "https://frontmatter-gen.com/api/agents/person.json",
+    "posts": "https://frontmatter-gen.com/api/agents/posts.json",
+    "topics": "https://frontmatter-gen.com/api/agents/topics.json"
+  },
+  "site": {
+    "description": "Zero-copy frontmatter extraction and multi-format parsing library and CLI for YAML 1.2, TOML, and JSON in Rust with HTML meta tag generation and zero unsafe code.",
+    "language": "en-GB",
+    "name": "Frontmatter Gen",
+    "title": "Frontmatter Gen",
+    "url": "https://frontmatter-gen.com"
+  },
+  "version": "0.0.69"
+}

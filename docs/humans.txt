@@ -1,0 +1,9 @@
+/* TEAM */
+Author: Sebastien Rousseau
+Site: https://sebastienrousseau.com/
+Location: London, United Kingdom
+
+/* SITE */
+URL: https://frontmatter-gen.com/
+Standards: HTML5, CSS4, WCAG 2.2 AAA, YAML 1.2, TOML 1.1, JSON
+Generator: Static Site Generator (ssg) + Skeletonic CSS (Kairo)

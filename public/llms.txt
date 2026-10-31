@@ -1,0 +1,28 @@
+# Frontmatter Gen (frontmatter-gen)
+> Zero-copy frontmatter extraction and multi-format parsing library and CLI for YAML 1.2, TOML, and JSON in Rust with HTML meta tag generation and zero unsafe code.
+
+## Supported Frontmatter Formats
+- YAML 1.2: Standard `---` fence extraction and full YAML 1.2 parsing via `noyalib` (including explicit tags via `Value::Tagged`)
+- TOML 1.1: Standard `+++` fence extraction and TOML 1.1 parsing via `toml`
+- JSON: Leading `Ellipsis` object or fenced JSON block extraction and parsing via `serde_json`
+- Automatic Detection: `detect_format` and `extract` inspect fence delimiters or leading tokens automatically
+
+## Core Capabilities & Assurance
+- Zero-Copy Extraction: `extract_raw_frontmatter` splits `(raw_frontmatter, body)` as borrowed `&str` slices without heap allocation
+- Configurable DoS Budgets: `ParseOptions` enforces `max_depth`, `max_keys`, and required-key validation (`validate: true`)
+- SEO & Meta Tag Synthesis: `meta::generate_metatags` produces escaped HTML `<meta>`, Open Graph, and Twitter Card tags
+- Formal Verification & Fuzzing: `#![forbid(unsafe_code)]`, Miri verified under Tree Borrows, 4 `cargo-fuzz` targets (`Arbitrary`), and 100% unit test coverage
+
+## Core Documentation & Resources
+- Homepage: https://frontmatter-gen.com/
+- Full LLM Context Bundle: https://frontmatter-gen.com/llms-full.txt
+- Getting Started: https://frontmatter-gen.com/getting-started/
+- Supported Formats: https://frontmatter-gen.com/formats/
+- Use Cases: https://frontmatter-gen.com/use-cases/
+- Performance Benchmarks: https://frontmatter-gen.com/benchmarks/
+- Pipeline Architecture: https://frontmatter-gen.com/architecture/
+- Security & Miri Verification: https://frontmatter-gen.com/security/
+- API & CLI Reference: https://frontmatter-gen.com/api/
+- Frequently Asked Questions: https://frontmatter-gen.com/faqs/
+- Author & Pedigree: https://frontmatter-gen.com/about/
+- Sebastien Rousseau: https://sebastienrousseau.com/

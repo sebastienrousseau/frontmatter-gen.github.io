@@ -1,0 +1,332 @@
+{
+  "feed_url": "https://frontmatter-gen.com/feed.json",
+  "home_page_url": "https://frontmatter-gen.com/",
+  "items": [
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "The requested documentation page could not be found on frontmatter-gen.com.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/404/",
+      "language": "en-GB",
+      "tags": [
+        "Utility"
+      ],
+      "title": "Page Not Found (404 Error) | Frontmatter Gen",
+      "url": "https://frontmatter-gen.com/404/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Learn about Sebastien Rousseau, author of frontmatter-gen, noyalib, staticdatagen, and Skeletonic CSS, and the engineering principles behind the crate.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/about/",
+      "language": "en-GB",
+      "tags": [
+        "Information"
+      ],
+      "title": "About Sebastien Rousseau | Frontmatter Gen Author",
+      "url": "https://frontmatter-gen.com/about/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "WCAG 2.2 Level AAA conformance statement for frontmatter-gen.com covering contrast verification (at least 7.0 to 1), keyboard navigation, and reduced motion.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/accessibility/",
+      "language": "en-GB",
+      "tags": [
+        "Legal"
+      ],
+      "title": "Accessibility Statement: WCAG 2.2 Level AAA Compliance",
+      "url": "https://frontmatter-gen.com/accessibility/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Complete API reference for frontmatter-gen v0.0.15: Frontmatter, Value, Format, ParseOptions, extract_raw_frontmatter, generate_metatags, and the fmg CLI.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/api/",
+      "language": "en-GB",
+      "tags": [
+        "Documentation"
+      ],
+      "title": "API & CLI Reference: Rust Types, Functions & fmg Commands",
+      "url": "https://frontmatter-gen.com/api/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Explore the four-stage architecture of frontmatter-gen: zero-copy fence extraction, format detection, budget-guarded parsing, and HTML meta tag synthesis.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/architecture/",
+      "language": "en-GB",
+      "tags": [
+        "Documentation"
+      ],
+      "title": "Pipeline Architecture: Zero-Copy Slicing & Parsing in Rust",
+      "url": "https://frontmatter-gen.com/architecture/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Explore the 6 Criterion benchmark suites in frontmatter-gen v0.0.15 measuring zero-copy extraction, YAML/TOML/JSON parsing, and HTML meta tag synthesis.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/benchmarks/",
+      "language": "en-GB",
+      "tags": [
+        "Documentation"
+      ],
+      "title": "Performance Benchmarks: Criterion Suites & Zero-Copy Latency",
+      "url": "https://frontmatter-gen.com/benchmarks/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Release history and semantic changelog for frontmatter-gen through v0.0.15 and the frontmatter-gen.com documentation portal.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/changelog/",
+      "language": "en-GB",
+      "tags": [
+        "Information"
+      ],
+      "title": "Changelog & Release History: Frontmatter Gen",
+      "url": "https://frontmatter-gen.com/changelog/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Get in touch with Sebastien Rousseau and the frontmatter-gen maintainers for bug reports, architectural inquiries, or security disclosures.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/contact/",
+      "language": "en-GB",
+      "tags": [
+        "Information"
+      ],
+      "title": "Contact & Support | Frontmatter Gen",
+      "url": "https://frontmatter-gen.com/contact/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Contribution guidelines for frontmatter-gen and frontmatter-gen.com: +0.0.1 versioning, signed commits, 100% test coverage, Miri, and REUSE 3.3 compliance.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/contributing/",
+      "language": "en-GB",
+      "tags": [
+        "Legal"
+      ],
+      "title": "Contributing Guide: Quality Gates & Verification",
+      "url": "https://frontmatter-gen.com/contributing/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Answers to 16 common questions about frontmatter-gen: YAML 1.2 vs YAML 1.1, zero-copy extraction, ParseOptions DoS limits, HTML meta tags, Miri, and licensing.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/faqs/",
+      "language": "en-GB",
+      "tags": [
+        "Documentation"
+      ],
+      "title": "Frequently Asked Questions: Frontmatter Gen Technical FAQ",
+      "url": "https://frontmatter-gen.com/faqs/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Specification and delimiter reference for YAML 1.2 (noyalib), TOML 1.1 (toml), and JSON (serde_json) frontmatter extraction and serialization in Rust.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/formats/",
+      "language": "en-GB",
+      "tags": [
+        "Documentation"
+      ],
+      "title": "Supported Formats: YAML 1.2, TOML 1.1 & JSON Frontmatter",
+      "url": "https://frontmatter-gen.com/formats/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Install frontmatter-gen v0.0.15 via Cargo, extract YAML 1.2, TOML, and JSON frontmatter in Rust, generate HTML meta tags, and run the fmg CLI.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/getting-started/",
+      "language": "en-GB",
+      "tags": [
+        "Documentation"
+      ],
+      "title": "Getting Started: Install Frontmatter Gen Crate & CLI",
+      "url": "https://frontmatter-gen.com/getting-started/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "How frontmatter-gen.com is compiled with Rust Static Site Generator (SSG) and Skeletonic CSS with Subresource Integrity and CycloneDX SBOMs.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/made-with-ssg/",
+      "language": "en-GB",
+      "tags": [
+        "Legal"
+      ],
+      "title": "Made with Static Site Generator (SSG) | Web Platform",
+      "url": "https://frontmatter-gen.com/made-with-ssg/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "You are currently offline. Cached Frontmatter Gen documentation pages remain available via the local Service Worker.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/offline/",
+      "language": "en-GB",
+      "tags": [
+        "Utility"
+      ],
+      "title": "Offline Documentation Access | Frontmatter Gen",
+      "url": "https://frontmatter-gen.com/offline/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Privacy policy for frontmatter-gen.com and the frontmatter-gen Rust crate: zero telemetry, zero tracking cookies, and local-only theme preferences.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/privacy/",
+      "language": "en-GB",
+      "tags": [
+        "Legal"
+      ],
+      "title": "Privacy Policy: Zero-Telemetry Documentation",
+      "url": "https://frontmatter-gen.com/privacy/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Security architecture of frontmatter-gen v0.0.15: #![forbid(unsafe_code)], Miri Tree Borrows verification, 4 cargo-fuzz targets, ParseOptions budgets, and cargo-vet.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/security/",
+      "language": "en-GB",
+      "tags": [
+        "Documentation"
+      ],
+      "title": "Security & Verification: Miri Tree Borrows, Fuzzing & Budgets",
+      "url": "https://frontmatter-gen.com/security/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Terms of use and open-source licensing for frontmatter-gen and frontmatter-gen.com under the Apache-2.0 OR MIT dual license.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/terms/",
+      "language": "en-GB",
+      "tags": [
+        "Legal"
+      ],
+      "title": "Terms of Use & Dual Open-Source Licensing",
+      "url": "https://frontmatter-gen.com/terms/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Confirmation page for inquiries sent to the Frontmatter Gen maintainers.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/thanks/",
+      "language": "en-GB",
+      "tags": [
+        "Legal"
+      ],
+      "title": "Thank You for Your Inquiry | Frontmatter Gen",
+      "url": "https://frontmatter-gen.com/thanks/"
+    },
+    {
+      "authors": [
+        {
+          "name": "Sebastien Rousseau"
+        }
+      ],
+      "content_html": "Production patterns for frontmatter-gen in Rust static site generators, headless CMS ingestion pipelines, documentation linters, and SEO meta tag synthesis.",
+      "date_modified": "2026-10-31T00:00:00+00:00",
+      "date_published": "",
+      "id": "https://frontmatter-gen.com/use-cases/",
+      "language": "en-GB",
+      "tags": [
+        "Documentation"
+      ],
+      "title": "Use Cases: Static Site Generators, CMS & CI Pipelines",
+      "url": "https://frontmatter-gen.com/use-cases/"
+    }
+  ],
+  "language": "en-GB",
+  "title": "Frontmatter Gen",
+  "version": "https://jsonfeed.org/version/1.1"
+}

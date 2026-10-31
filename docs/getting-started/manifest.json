@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "description": "Install frontmatter-gen v0.0.15 via Cargo, extract YAML 1.2, TOML, and JSON frontmatter in Rust, generate HTML meta tags",
+  "display": "standalone",
+  "icons": [],
+  "name": "Frontmatter Gen",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "frontmatter-",
+  "start_url": ".",
+  "theme_color": "#8f250c"
+}

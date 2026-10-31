@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://frontmatter-gen.com/privacy/sitemap.xml

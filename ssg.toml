@@ -1,0 +1,11 @@
+# SPDX-FileCopyrightText: 2024-2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+# Static Site Generator (SSG) Configuration File — frontmatter-gen.com
+site_name = "Frontmatter Gen"
+content_dir = "_posts"
+output_dir = "public"
+template_dir = "_layouts"
+base_url = "https://frontmatter-gen.com"
+site_title = "Frontmatter Gen"
+site_description = "Zero-copy frontmatter extraction and multi-format parsing library and CLI for YAML 1.2, TOML, and JSON in Rust with HTML meta tag generation and zero unsafe code."
+language = "en-GB"

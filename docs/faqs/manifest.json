@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "description": "Answers to 16 common questions about frontmatter-gen: YAML 1.2 vs YAML 1.1, zero-copy extraction, ParseOptions DoS limit",
+  "display": "standalone",
+  "icons": [],
+  "name": "Frontmatter Gen",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "frontmatter-",
+  "start_url": ".",
+  "theme_color": "#8f250c"
+}

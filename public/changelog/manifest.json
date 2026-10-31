@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "description": "Release history and semantic changelog for frontmatter-gen through v0.0.15 and the frontmatter-gen.com documentation por",
+  "display": "standalone",
+  "icons": [],
+  "name": "Frontmatter Gen",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "frontmatter-",
+  "start_url": ".",
+  "theme_color": "#8f250c"
+}

@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "description": "Specification and delimiter reference for YAML 1.2 (noyalib), TOML 1.1 (toml), and JSON (serde_json) frontmatter extract",
+  "display": "standalone",
+  "icons": [],
+  "name": "Frontmatter Gen",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "frontmatter-",
+  "start_url": ".",
+  "theme_color": "#8f250c"
+}

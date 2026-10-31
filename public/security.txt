@@ -1,0 +1,7 @@
+# RFC 9116 Security Disclosure Policy for frontmatter-gen.com
+Contact: mailto:sebastian.rousseau@gmail.com
+Contact: https://frontmatter-gen.com/contact/index.html
+Expires: 2027-12-31T23:59:59.000Z
+Preferred-Languages: en
+Canonical: https://frontmatter-gen.com/.well-known/security.txt
+Policy: https://github.com/sebastienrousseau/frontmatter-gen.github.io/security/policy

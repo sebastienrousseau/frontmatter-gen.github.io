@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "description": "Get in touch with Sebastien Rousseau and the frontmatter-gen maintainers for bug reports, architectural inquiries, or se",
+  "display": "standalone",
+  "icons": [],
+  "name": "Frontmatter Gen",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "frontmatter-",
+  "start_url": ".",
+  "theme_color": "#8f250c"
+}

@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://frontmatter-gen.com/getting-started/sitemap.xml

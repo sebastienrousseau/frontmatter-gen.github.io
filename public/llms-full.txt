@@ -1,0 +1,1526 @@
+# Frontmatter Gen (frontmatter-gen)
+> Zero-copy frontmatter extraction and multi-format parsing library and CLI for YAML 1.2, TOML, and JSON in Rust with HTML meta tag generation and zero unsafe code.
+
+## Supported Frontmatter Formats
+- YAML 1.2: Standard `---` fence extraction and full YAML 1.2 parsing via `noyalib` (including explicit tags via `Value::Tagged`)
+- TOML 1.1: Standard `+++` fence extraction and TOML 1.1 parsing via `toml`
+- JSON: Leading `Ellipsis` object or fenced JSON block extraction and parsing via `serde_json`
+- Automatic Detection: `detect_format` and `extract` inspect fence delimiters or leading tokens automatically
+
+## Core Capabilities & Assurance
+- Zero-Copy Extraction: `extract_raw_frontmatter` splits `(raw_frontmatter, body)` as borrowed `&str` slices without heap allocation
+- Configurable DoS Budgets: `ParseOptions` enforces `max_depth`, `max_keys`, and required-key validation (`validate: true`)
+- SEO & Meta Tag Synthesis: `meta::generate_metatags` produces escaped HTML `<meta>`, Open Graph, and Twitter Card tags
+- Formal Verification & Fuzzing: `#![forbid(unsafe_code)]`, Miri verified under Tree Borrows, 4 `cargo-fuzz` targets (`Arbitrary`), and 100% unit test coverage
+
+## Core Documentation & Resources
+- Homepage: https://frontmatter-gen.com/
+- Full LLM Context Bundle: https://frontmatter-gen.com/llms-full.txt
+- Getting Started: https://frontmatter-gen.com/getting-started/
+- Supported Formats: https://frontmatter-gen.com/formats/
+- Use Cases: https://frontmatter-gen.com/use-cases/
+- Performance Benchmarks: https://frontmatter-gen.com/benchmarks/
+- Pipeline Architecture: https://frontmatter-gen.com/architecture/
+- Security & Miri Verification: https://frontmatter-gen.com/security/
+- API & CLI Reference: https://frontmatter-gen.com/api/
+- Frequently Asked Questions: https://frontmatter-gen.com/faqs/
+- Author & Pedigree: https://frontmatter-gen.com/about/
+- Sebastien Rousseau: https://sebastienrousseau.com/
+
+---
+
+<section class="visage-intro" aria-labelledby="hero-heading">
+<div class="wrap">
+<p class="lilac-label">Rust Document Engineering · v0.0.15 · Open Source</p>
+<h1 id="hero-heading">Front matter in, <em>typed values out.</em><br>Zero-copy slicing. Zero unsafe code.</h1>
+<p>A pure-Rust library and CLI for extracting and parsing YAML 1.2, TOML 1.1, and JSON frontmatter from Markdown and text documents. Built for static site generators, documentation engines, and content pipelines with configurable DoS budgets, HTML meta tag synthesis, Miri Tree Borrows verification, and 100% unit test coverage.</p>
+<div class="actions">
+<a class="primary" href="/getting-started/index.html">Install Crate &amp; CLI</a>
+<a href="/formats/index.html">Explore Supported Formats</a>
+</div>
+<ul class="hero-assurances" aria-label="Core assurances">
+<li>YAML 1.2, TOML 1.1 &amp; JSON</li>
+<li>Zero-Copy Body Slicing</li>
+<li>#![forbid(unsafe_code)] + Miri Verified</li>
+</ul>
+</div>
+</section>
+
+<section class="trust-strip" aria-label="Platform guarantees">
+<div class="wrap">
+<ul>
+<li>
+<b>3 Native Formats</b>
+<span>YAML 1.2 (<code>---</code> via <code>noyalib</code>), TOML 1.1 (<code>+++</code>), and JSON (<code>{ ... }</code>) enabled by default.</span>
+</li>
+<li>
+<b>0 B Copy Slice</b>
+<span><code>extract_raw_frontmatter</code> borrows <code>(&amp;str, &amp;str)</code> slices directly from your input buffer.</span>
+</li>
+<li>
+<b>100% Coverage</b>
+<span>Every module verified by <code>cargo-llvm-cov</code>, <code>proptest</code>, Miri Tree Borrows, and 4 fuzz targets.</span>
+</li>
+<li>
+<b>DoS Guardrails</b>
+<span>Configurable <code>max_depth</code>, <code>max_keys</code>, and required-key validation via <code>ParseOptions</code>.</span>
+</li>
+</ul>
+</div>
+</section>
+
+<section class="analysis-stage" id="workflows" aria-labelledby="workflows-heading">
+<div class="wrap image-shell">
+<picture>
+<source media="(max-width: 40rem)" srcset="https://cloudcdn.pro/stocks/images/getty-images-LaU3HadwEeE-unsplash-320.webp 320w, https://cloudcdn.pro/stocks/images/getty-images-LaU3HadwEeE-unsplash-640.webp 640w, https://cloudcdn.pro/stocks/images/getty-images-LaU3HadwEeE-unsplash-1200.webp 1200w" sizes="100vw">
+<img src="https://cloudcdn.pro/stocks/images/getty-images-LaU3HadwEeE-unsplash-1200.webp" srcset="https://cloudcdn.pro/stocks/images/getty-images-LaU3HadwEeE-unsplash-640.webp 640w, https://cloudcdn.pro/stocks/images/getty-images-LaU3HadwEeE-unsplash-1200.webp 1200w, https://cloudcdn.pro/stocks/images/getty-images-LaU3HadwEeE-unsplash-1920.webp 1920w" sizes="(max-width: 40rem) 100vw, 80rem" width="1200" height="675" alt="High-throughput content engineering and static site compilation dashboard" loading="lazy" decoding="async">
+</picture>
+<div class="consultation-card">
+<p class="lilac-label">Content Pipeline Automation</p>
+<h2 id="workflows-heading">Unified Metadata for Static Sites &amp; Content Engines</h2>
+<p>Replace brittle regular expressions and archived YAML 1.1 parsers with a single deterministic crate. Ingest Markdown with YAML, TOML, or JSON headers and emit typed Rust structures or escaped HTML5 meta tags in microseconds.</p>
+<a class="primary" href="/use-cases/index.html">View Production Blueprints <span aria-hidden="true">↗</span></a>
+</div>
+</div>
+</section>
+
+<section class="visage-features" id="features" aria-labelledby="features-heading">
+<div class="wrap">
+<header class="section-heading">
+<p class="lilac-label">Engine Architecture</p>
+<h2 id="features-heading">Engineered for predictable latency and untrusted input safety.</h2>
+<p>Every module in <code>frontmatter-gen</code> separates zero-copy borrowing from heap allocation so callers pay only for the work they request.</p>
+</header>
+<div class="three-cells">
+<article>
+<span>01</span>
+<h3>Zero-Copy Fence Splitting</h3>
+<p><code>extractor::extract_raw_frontmatter</code> locates YAML (<code>---</code>), TOML (<code>+++</code>), or JSON (<code>{ ... }</code>) boundaries in a single forward scan and returns borrowed <code>(&amp;str, &amp;str)</code> slices with zero heap allocation.</p>
+</article>
+<article>
+<span>02</span>
+<h3>YAML 1.2, TOML 1.1 &amp; JSON</h3>
+<p>Powered by pure-Rust <code>noyalib</code> (YAML 1.2 with explicit <code>Value::Tagged</code> preservation and no Norway boolean coercion), <code>toml</code> 1.1, and <code>serde_json</code>, unified behind a single recursive <code>Frontmatter</code> model.</p>
+</article>
+<article>
+<span>03</span>
+<h3>HTML Meta &amp; Template Engine</h3>
+<p><code>meta::generate_metatags</code> transforms frontmatter maps into entity-escaped HTML <code>&lt;meta&gt;</code>, Open Graph (<code>og:*</code>), and Twitter Card tags, while the optional <code>ssg</code> feature drives static site builds.</p>
+</article>
+</div>
+</div>
+</section>
+
+<section class="visage-process" id="process" aria-labelledby="process-heading">
+<div class="wrap">
+<p class="lilac-label">The Processing Pipeline</p>
+<h2 id="process-heading">One pass from raw Markdown document to verified output.</h2>
+<div class="process-grid">
+<article>
+<b>1</b>
+<h3>Slice</h3>
+<p>Strip optional UTF-8 BOM (<code>\u{FEFF}</code>) and split the leading frontmatter block from the Markdown body without copying either half.</p>
+<small>extract_raw_frontmatter(&amp;str)</small>
+</article>
+<article>
+<b>2</b>
+<h3>Detect</h3>
+<p>Inspect fence delimiters or leading structural tokens to classify the header as <code>Format::Yaml</code>, <code>Format::Toml</code>, or <code>Format::Json</code>.</p>
+<small>detect_format(&amp;str)</small>
+</article>
+<article>
+<b>3</b>
+<h3>Parse &amp; Guard</h3>
+<p>Deserialize into <code>Frontmatter</code> while enforcing optional <code>ParseOptions</code> limits on nesting depth, total keys, and required fields.</p>
+<small>parse_with_options(&amp;str, Format, &amp;ParseOptions)</small>
+</article>
+<article>
+<b>4</b>
+<h3>Emit</h3>
+<p>Serialize back to any format via <code>parser::to_string</code>, emit escaped HTML <code>&lt;meta&gt;</code> tags, or render static pages via <code>fmg</code>.</p>
+<small>generate_metatags(&amp;Frontmatter)</small>
+</article>
+</div>
+</div>
+</section>
+
+<section class="analysis-stage" id="architecture-preview" aria-labelledby="arch-heading">
+<div class="wrap image-shell">
+<picture>
+<source media="(max-width: 40rem)" srcset="https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-320.webp 320w, https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-640.webp 640w, https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-1200.webp 1200w" sizes="100vw">
+<img src="https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-1200.webp" srcset="https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-640.webp 640w, https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-1200.webp 1200w, https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-1920.webp 1920w" sizes="(max-width: 40rem) 100vw, 80rem" width="1200" height="675" alt="Architectural view of London at night representing deterministic Rust parsing infrastructure" loading="lazy" decoding="async">
+</picture>
+<div class="consultation-card">
+<p class="lilac-label">High-Assurance Pipeline</p>
+<h2 id="arch-heading">Deterministic Execution at Scale</h2>
+<p>Designed for static site compilers, documentation servers, and CI linters requiring sub-microsecond slice extraction, bounded recursion depth, and strict YAML 1.2 fidelity.</p>
+<a class="primary" href="/architecture/index.html">View Architecture Blueprint <span aria-hidden="true">↗</span></a>
+</div>
+</div>
+</section>
+
+<section class="terminal-stage" aria-labelledby="quickstart-heading">
+<div class="wrap terminal-grid">
+<div>
+<p class="lilac-label">Developer Quickstart</p>
+<h2 id="quickstart-heading">Add the Rust Crate or Install the CLI in Seconds</h2>
+<p>Embed <code>frontmatter_gen::extract</code> directly in your Rust library, or install the standalone <code>fmg</code> binary to extract frontmatter and build static sites from your terminal.</p>
+<div class="actions">
+<a class="primary" href="/getting-started/index.html">Full Documentation →</a>
+<a href="/api/index.html">API &amp; CLI Reference</a>
+</div>
+</div>
+<div class="terminal-box">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">rust &amp; bash — frontmatter-gen v0.0.15</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-comment">&#35; 1. Add library crate or install CLI binary</span></div>
+<div class="t-line"><span class="t-prompt">$</span>cargo add frontmatter-gen</div>
+<div class="t-line"><span class="t-prompt">$</span>cargo install frontmatter-gen --features cli</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; 2. Extract and parse YAML 1.2, TOML, or JSON in Rust</span></div>
+<div class="t-line"><span class="t-key">let</span> (fm, body) = frontmatter_gen::extract(markdown)?;</div>
+<div class="t-line"><span class="t-key">let</span> meta_html = frontmatter_gen::meta::generate_metatags(&amp;fm)?;</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; 3. Extract frontmatter to JSON from the terminal</span></div>
+<div class="t-line"><span class="t-prompt">$</span>fmg extract content/post.md --format json --output meta.json</div>
+</div>
+</div>
+</div>
+</section>
+
+<section class="privacy-panel" aria-labelledby="security-heading">
+<div class="wrap privacy-grid">
+<p class="lilac-label">Formal &amp; Empirical Assurance</p>
+<div>
+<h2 id="security-heading">Zero unsafe code. Proven under Miri Tree Borrows.</h2>
+<p>Every crate boundary enforces <code>#![forbid(unsafe_code)]</code>. Continuous verification runs Miri with <code>-Zmiri-strict-provenance -Zmiri-tree-borrows</code> across both default and minimal feature sets, backed by 4 structure-aware <code>cargo-fuzz</code> harnesses and <code>cargo-vet</code> supply-chain audits.</p>
+</div>
+<a href="/security/index.html">Read Security &amp; Verification Architecture <span aria-hidden="true">↓</span></a>
+</div>
+</section>
+
+<section class="visage-faq" id="faq" aria-labelledby="faq-heading">
+<div class="wrap faq-layout">
+<header>
+<p class="lilac-label">Clear Answers</p>
+<h2 id="faq-heading">Frequently Asked Questions</h2>
+</header>
+<div>
+<details>
+<summary>Why does frontmatter-gen use noyalib instead of serde_yaml?</summary>
+<p><code>serde_yaml</code> was archived upstream in March 2024 and implements YAML 1.1, where unquoted scalars like <code>no</code> or <code>off</code> coerce to booleans. <code>frontmatter-gen</code> uses <code>noyalib</code>, an actively maintained, pure-Rust YAML 1.2 parser with zero unsafe code and explicit tag support.</p>
+</details>
+<details>
+<summary>Does extract_raw_frontmatter allocate on the heap?</summary>
+<p>No. <code>extractor::extract_raw_frontmatter</code> returns <code>Result&lt;(&amp;str, &amp;str), ParseError&gt;</code> borrowed directly from your input <code>&amp;str</code>. You only allocate when you parse the raw slice into a <code>Frontmatter</code> map.</p>
+</details>
+<details>
+<summary>How do I protect my server against deeply nested frontmatter payloads?</summary>
+<p>Use <code>parser::parse_with_options</code> with a <code>ParseOptions</code> struct setting <code>max_depth</code> (for example, <code>Some(16)</code>) and <code>max_keys</code> (for example, <code>Some(128)</code>). Payloads exceeding either threshold return <code>ParseError::InvalidFrontmatter</code> immediately.</p>
+</details>
+<details>
+<summary>Are the CLI and SSG engine mandatory dependencies?</summary>
+<p>No. The default build includes only the core extractor, YAML/TOML/JSON parsers, and HTML meta tag generator. The <code>cli</code> feature (<code>fmg</code> binary) and <code>ssg</code> feature (static site engine) are strictly opt-in.</p>
+</details>
+</div>
+</div>
+</section>
+
+<section class="visage-closing" aria-labelledby="visage-close">
+<div class="wrap">
+<div>
+<p class="lilac-label">Developer Quickstart</p>
+<h2 id="visage-close">Document metadata is foundational.<br><em>Your frontmatter parser should be deterministic.</em></h2>
+</div>
+<div>
+<p>Get started in seconds with the Rust library crate or the standalone <code>fmg</code> CLI across Linux, macOS, and Windows.</p>
+<a class="primary" href="/getting-started/index.html">Install Frontmatter Gen</a>
+</div>
+</div>
+</section>
+
+---
+
+Frontmatter Gen (`frontmatter-gen`) is an open-source, pure-Rust library and CLI for extracting and parsing YAML 1.2, TOML 1.1, and JSON frontmatter from Markdown and text documents. Follow this guide to add the crate, run the `fmg` binary, or enforce DoS limits on untrusted inputs.
+
+<div class="install-grid">
+<div class="install-card">
+<div class="install-card-header">
+<h2 class="install-card-title">Core Library</h2>
+<span class="install-card-tag">Crate v0.0.15</span>
+</div>
+<p class="install-card-desc">Zero-copy extractor, YAML 1.2 / TOML 1.1 / JSON parsers, and HTML meta tag generator with minimal dependencies.</p>
+<pre><code>cargo add frontmatter-gen</code></pre>
+</div>
+
+<div class="install-card">
+<div class="install-card-header">
+<h2 class="install-card-title">Standalone CLI</h2>
+<span class="install-card-tag">Binary (fmg)</span>
+</div>
+<p class="install-card-desc">Install the standalone <code>fmg</code> command-line binary with <code>clap</code> and <code>tokio</code> for terminal and CI workflows.</p>
+<pre><code>cargo install frontmatter-gen --features cli</code></pre>
+</div>
+
+<div class="install-card">
+<div class="install-card-header">
+<h2 class="install-card-title">SSG Engine</h2>
+<span class="install-card-tag">Feature Flag</span>
+</div>
+<p class="install-card-desc">Enable the static site generation engine powered by <code>tera</code> templates and <code>comrak</code> Markdown rendering.</p>
+<pre><code>cargo add frontmatter-gen --features ssg</code></pre>
+</div>
+
+<div class="install-card">
+<div class="install-card-header">
+<h2 class="install-card-title">Rust Toolchain</h2>
+<span class="install-card-tag">MSRV 1.85.0+</span>
+</div>
+<p class="install-card-desc">Requires Rust 1.85.0 or newer (Edition 2024) and compiles cleanly across Linux, macOS, and Windows with zero unsafe code.</p>
+<pre><code>rustup update stable</code></pre>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">01</span>
+<h2 class="step-title">Extract &amp; Parse Frontmatter in One Call</h2>
+</div>
+<p>The top-level <code>frontmatter_gen::extract</code> function detects the frontmatter format automatically, parses the header into a <code>Frontmatter</code> map, and returns the remaining Markdown body as a borrowed <code>&amp;str</code> slice:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">rust — src/main.rs</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::{extract, Value};</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-key">fn</span> <span class="t-val">main</span>() -&gt; Result&lt;(), Box&lt;<span class="t-key">dyn</span> std::error::Error&gt;&gt; {</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">let</span> doc = <span class="t-val">&quot;---\ntitle: Zero-Copy Rust\npublished: true\n---\n# Welcome\n&quot;</span>;</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">let</span> (fm, body) = extract(doc)?;</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;assert_eq!(fm.get(<span class="t-val">&quot;title&quot;</span>), Some(&amp;Value::String(<span class="t-val">&quot;Zero-Copy Rust&quot;</span>.into())));</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;assert_eq!(fm.get(<span class="t-val">&quot;published&quot;</span>), Some(&amp;Value::Bool(<span class="t-val">true</span>)));</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;assert!(body.starts_with(<span class="t-val">&quot;# Welcome&quot;</span>));</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;Ok(())</div>
+<div class="t-line">}</div>
+</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">02</span>
+<h2 class="step-title">Zero-Copy Raw Slicing &amp; DoS Budget Guardrails</h2>
+</div>
+<p>When processing untrusted Markdown uploads or inspecting raw slices before allocation, pair <code>extractor::extract_raw_frontmatter</code> with <code>parser::parse_with_options</code>:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">rust — zero-copy &amp; ParseOptions</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::extractor::{detect_format, extract_raw_frontmatter};</div>
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::parser::{parse_with_options, ParseOptions};</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; 1. Borrow (raw_header, body) without heap allocation</span></div>
+<div class="t-line"><span class="t-key">let</span> (raw_header, body) = extract_raw_frontmatter(input)?;</div>
+<div class="t-line"><span class="t-key">let</span> format = detect_format(raw_header);</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; 2. Enforce structural depth and key-count budgets</span></div>
+<div class="t-line"><span class="t-key">let</span> options = ParseOptions {</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;validate: <span class="t-val">true</span>,</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;max_depth: Some(<span class="t-val">8</span>),</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;max_keys: Some(<span class="t-val">64</span>),</div>
+<div class="t-line">};</div>
+<div class="t-line"><span class="t-key">let</span> fm = parse_with_options(raw_header, format, &amp;options)?;</div>
+</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">03</span>
+<h2 class="step-title">Generate Escaped HTML Meta Tags &amp; Use the CLI</h2>
+</div>
+<p>Convert parsed frontmatter into HTML <code>&lt;meta&gt;</code>, Open Graph, and Twitter Card tags, or invoke the <code>fmg</code> binary directly from your shell:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">bash — fmg cli quickstart</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-comment">&#35; Extract frontmatter from a Markdown file and print as formatted JSON</span></div>
+<div class="t-line"><span class="t-prompt">$</span>fmg extract content/post.md --format json</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; Write extracted frontmatter to a YAML file</span></div>
+<div class="t-line"><span class="t-prompt">$</span>fmg extract content/post.md --format yaml --output build/meta.yaml</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; Build a static site from content/ and templates/ into public/</span></div>
+<div class="t-line"><span class="t-prompt">$</span>fmg build --content-dir content --template-dir templates --output-dir public</div>
+</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">04</span>
+<h2 class="step-title">Memory-Safe Execution Guarantees</h2>
+</div>
+<p>Every extraction and parsing pass executes strictly in local memory with <code>#![forbid(unsafe_code)]</code>, verified under Miri Tree Borrows and continuous fuzzing:</p>
+
+<div class="doc-visual-card">
+<picture>
+<source media="(max-width: 40rem)" srcset="https://cloudcdn.pro/stocks/images/quantum-computer-room-320.webp 320w, https://cloudcdn.pro/stocks/images/quantum-computer-room-640.webp 640w, https://cloudcdn.pro/stocks/images/quantum-computer-room-1200.webp 1200w" sizes="100vw">
+<img src="https://cloudcdn.pro/stocks/images/quantum-computer-room-1200.webp" alt="Deterministic Rust document metadata extraction and parsing architecture" width="1200" height="675" loading="lazy" />
+</picture>
+<div class="doc-visual-caption">Zero-copy architecture: frontmatter boundaries are sliced in a single forward scan and parsed into strongly-typed Rust values with zero unsafe code.</div>
+</div>
+</div>
+
+---
+
+Frontmatter Gen supports the three primary frontmatter formats used across static site generators, documentation engines, and content management systems. All three formats deserialize into the same `Frontmatter` (`HashMap<String, Value>`) representation and can be converted into one another via `frontmatter_gen::parser::to_string`.
+
+<div class="table-responsive my-4">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Format</th>
+<th>Fence / Delimiter</th>
+<th>Underlying Parser</th>
+<th>Specification &amp; Key Guarantees</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>YAML 1.2</strong></td>
+<td><code>---</code> ... <code>---</code></td>
+<td><code>noyalib</code> (Pure Rust)</td>
+<td>YAML 1.2 Core Schema; no Norway problem; explicit tags preserved as <code>Value::Tagged</code>.</td>
+</tr>
+<tr>
+<td><strong>TOML 1.1</strong></td>
+<td><code>+++</code> ... <code>+++</code></td>
+<td><code>toml</code></td>
+<td>TOML 1.1 tables, inline tables, arrays of tables, and ISO 8601 datetimes converted to strings.</td>
+</tr>
+<tr>
+<td><strong>JSON</strong></td>
+<td><code>{ ... }</code> or fenced JSON</td>
+<td><code>serde_json</code></td>
+<td>RFC 8259 balanced brace tracking with string-literal and escape-sequence awareness.</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<h2>1. YAML 1.2 Frontmatter (<code>---</code>) via <code>noyalib</code></h2>
+
+<p>YAML is the default frontmatter format across Jekyll, Astro, Docusaurus, Eleventy, and Markdown documentation portals. Unlike legacy Rust crates built on archived <code>serde_yaml</code> (YAML 1.1), <code>frontmatter-gen</code> uses <strong><code>noyalib</code></strong>, a pure-Rust YAML 1.2 parser with zero <code>unsafe</code> code:</p>
+
+<ul>
+<li><strong>No YAML 1.1 Norway Problem:</strong> In YAML 1.1, unquoted strings like <code>NO</code>, <code>no</code>, <code>on</code>, and <code>off</code> silently coerce into booleans. Under YAML 1.2, only <code>true</code> and <code>false</code> resolve as booleans, keeping country codes and short tokens intact as <code>Value::String</code>.</li>
+<li><strong>Explicit YAML Tag Preservation:</strong> Tagged scalars and mappings (such as <code>!custom value</code> or <code>!include path.yaml</code>) are preserved losslessly as <code>Value::Tagged(tag_name, Box&lt;Value&gt;)</code> and accessible via <code>Value::as_tagged()</code>.</li>
+<li><strong>Root Mapping Requirement:</strong> The top-level YAML value must be a mapping; scalar or sequence roots return <code>ParseError::InvalidYaml</code>.</li>
+</ul>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">markdown — YAML 1.2 frontmatter</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-comment">---</span></div>
+<div class="t-line"><span class="t-key">title:</span> <span class="t-val">&quot;Deterministic YAML 1.2&quot;</span></div>
+<div class="t-line"><span class="t-key">country:</span> <span class="t-val">NO</span></div>
+<div class="t-line"><span class="t-key">published:</span> <span class="t-val">true</span></div>
+<div class="t-line"><span class="t-key">custom:</span> <span class="t-val">!slug my-article-slug</span></div>
+<div class="t-line"><span class="t-comment">---</span></div>
+<div class="t-line">&#35; Article Body</div>
+</div>
+</div>
+
+<h2>2. TOML 1.1 Frontmatter (<code>+++</code>) via <code>toml</code></h2>
+
+<p>TOML frontmatter is standard in Hugo, Zola, and Rust documentation pipelines. A TOML header opens with <code>+++</code> on the first line and closes with a matching <code>+++</code> fence:</p>
+
+<ul>
+<li><strong>Native Datetime Normalization:</strong> TOML native datetimes (<code>toml::Value::Datetime</code>) are automatically converted into their canonical ISO 8601 string representation (<code>Value::String</code>) for uniform downstream template rendering.</li>
+<li><strong>Nested Tables &amp; Arrays:</strong> Dotted keys, inline tables, and nested sections map directly to nested <code>Value::Object(Box&lt;Frontmatter&gt;)</code> structures.</li>
+</ul>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">markdown — TOML 1.1 frontmatter</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-comment">+++</span></div>
+<div class="t-line"><span class="t-key">title</span> = <span class="t-val">&quot;TOML 1.1 Frontmatter&quot;</span></div>
+<div class="t-line"><span class="t-key">weight</span> = <span class="t-val">10</span></div>
+<div class="t-line"><span class="t-key">date</span> = <span class="t-val">2026-10-31T12:00:00Z</span></div>
+<div class="t-line"><span class="t-key">[taxonomies]</span></div>
+<div class="t-line"><span class="t-key">categories</span> = [<span class="t-val">&quot;systems&quot;</span>, <span class="t-val">&quot;rust&quot;</span>]</div>
+<div class="t-line"><span class="t-comment">+++</span></div>
+<div class="t-line">&#35; TOML Document Body</div>
+</div>
+</div>
+
+<h2>3. JSON Frontmatter (<code>{ ... }</code>) via <code>serde_json</code></h2>
+
+<p>JSON frontmatter is widely used in automated CMS exports and machine-generated Markdown documents. <code>frontmatter-gen</code> supports both standalone leading JSON objects and fenced JSON blocks:</p>
+
+<ul>
+<li><strong>Balanced Brace Scanner:</strong> <code>extract_json_frontmatter</code> tracks brace depth while respecting quoted string literals and backslash escapes (<code>\&quot;</code>), ensuring braces inside string values never prematurely terminate extraction.</li>
+<li><strong>Exact Numeric Representation:</strong> Numbers are stored as <code>serde_json::Number</code> inside <code>Value::Number</code>, preserving 64-bit signed/unsigned integers and IEEE 754 floats.</li>
+</ul>
+
+<h2>4. Cross-Format Serialization (<code>parser::to_string</code>)</h2>
+
+<p>Because all three formats deserialize into <code>Frontmatter</code>, converting between YAML, TOML, and JSON requires a single call to <code>frontmatter_gen::parser::to_string(&amp;fm, target_format)</code>:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">rust — cross-format conversion</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::{extract, Format};</div>
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::parser::to_string;</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-key">let</span> (fm, _body) = extract(<span class="t-val">&quot;---\ntitle: Convert Me\ncount: 42\n---\nBody&quot;</span>)?;</div>
+<div class="t-line"><span class="t-key">let</span> as_toml = to_string(&amp;fm, Format::Toml)?;</div>
+<div class="t-line"><span class="t-key">let</span> as_json = to_string(&amp;fm, Format::Json)?;</div>
+</div>
+</div>
+
+---
+
+Frontmatter Gen exposes a compact, strongly-typed Rust API alongside the `fmg` command-line binary. Every public function returns explicit `Result` types (`ParseError`, `MetaError`, `ConfigError`, `EngineError`) with zero panics on malformed user input. Full generated rustdoc is hosted on [docs.rs/frontmatter-gen](https://docs.rs/frontmatter-gen).
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">01</span>
+<h2 class="step-title">Core Library Interface &amp; Value Model</h2>
+</div>
+<p>Extract and inspect frontmatter values using the unified <code>Frontmatter</code> map and recursive <code>Value</code> enum across YAML 1.2, TOML 1.1, and JSON:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">rust — frontmatter_gen::extract &amp; Value</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::{extract, Format, Frontmatter, Value};</div>
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::parser::to_string;</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; Extract Frontmatter map and borrowed Markdown body</span></div>
+<div class="t-line"><span class="t-key">let</span> (fm, body): (Frontmatter, &amp;str) = extract(content)?;</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; Inspect typed scalars, arrays, objects, or YAML 1.2 tags</span></div>
+<div class="t-line"><span class="t-key">let</span> title: Option&lt;&amp;str&gt; = fm.get(<span class="t-val">&quot;title&quot;</span>).and_then(Value::as_str);</div>
+<div class="t-line"><span class="t-key">let</span> draft: Option&lt;bool&gt; = fm.get(<span class="t-val">&quot;draft&quot;</span>).and_then(Value::as_bool);</div>
+<div class="t-line"><span class="t-key">let</span> tagged = fm.get(<span class="t-val">&quot;custom&quot;</span>).and_then(Value::as_tagged);</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; Serialize Frontmatter into YAML, TOML, or JSON</span></div>
+<div class="t-line"><span class="t-key">let</span> json_out: String = to_string(&amp;fm, Format::Json)?;</div>
+</div>
+</div>
+
+<p>Core types and helper methods exported at the crate root:</p>
+
+<div class="table-responsive my-3">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Type / Method</th>
+<th>Signature</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extract</code></td>
+<td><code>fn(&amp;str) -&gt; Result&lt;(Frontmatter, &amp;str), ParseError&gt;</code></td>
+<td>Extracts and parses frontmatter in one pass, returning the parsed map and borrowed body slice.</td>
+</tr>
+<tr>
+<td><code>Frontmatter</code></td>
+<td><code>pub struct Frontmatter(pub HashMap&lt;String, Value&gt;)</code></td>
+<td>Case-sensitive map implementing <code>Deref</code> and <code>DerefMut</code> to <code>HashMap&lt;String, Value&gt;</code>.</td>
+</tr>
+<tr>
+<td><code>Value</code></td>
+<td><code>Null | Bool | Number | String | Array | Object | Tagged</code></td>
+<td>Format-agnostic recursive value enum with <code>Value::Tagged(String, Box&lt;Value&gt;)</code> for YAML 1.2 tags.</td>
+</tr>
+<tr>
+<td><code>Value::as_str</code> / <code>as_bool</code></td>
+<td><code>fn(&amp;self) -&gt; Option&lt;...&gt;</code></td>
+<td>Borrows the underlying string, boolean, <code>f64</code>, <code>i64</code>, <code>u64</code>, array, object, or tagged pair.</td>
+</tr>
+<tr>
+<td><code>Format</code></td>
+<td><code>Yaml | Toml | Json | Unsupported</code></td>
+<td>Identifies the detected or target serialization format for frontmatter blocks.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">02</span>
+<h2 class="step-title">Zero-Copy Extractor &amp; Budgeted Parser Modules</h2>
+</div>
+<p>The <code>extractor</code>, <code>parser</code>, and <code>meta</code> modules give fine-grained control over zero-copy slicing, structural DoS budgets, and HTML meta tag generation:</p>
+
+<div class="table-responsive my-3">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Module Function</th>
+<th>Signature</th>
+<th>Purpose &amp; Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extractor::extract_raw_frontmatter</code></td>
+<td><code>fn(&amp;str) -&gt; Result&lt;(&amp;str, &amp;str), ParseError&gt;</code></td>
+<td>Zero-copy split returning <code>(raw_frontmatter, body)</code> borrowed directly from <code>content</code>.</td>
+</tr>
+<tr>
+<td><code>extractor::detect_format</code></td>
+<td><code>fn(&amp;str) -&gt; Format</code></td>
+<td>Classifies raw frontmatter as <code>Format::Json</code>, <code>Format::Toml</code>, <code>Format::Yaml</code>, or <code>Format::Unsupported</code>.</td>
+</tr>
+<tr>
+<td><code>parser::parse</code></td>
+<td><code>fn(&amp;str, Format) -&gt; Result&lt;Frontmatter, ParseError&gt;</code></td>
+<td>Parses a raw frontmatter slice using default <code>ParseOptions</code>.</td>
+</tr>
+<tr>
+<td><code>parser::parse_with_options</code></td>
+<td><code>fn(&amp;str, Format, &amp;ParseOptions) -&gt; Result&lt;Frontmatter, ParseError&gt;</code></td>
+<td>Parses raw frontmatter while enforcing <code>validate</code>, <code>max_depth</code>, and <code>max_keys</code> limits.</td>
+</tr>
+<tr>
+<td><code>parser::to_string</code></td>
+<td><code>fn(&amp;Frontmatter, Format) -&gt; Result&lt;String, ParseError&gt;</code></td>
+<td>Serializes a <code>Frontmatter</code> map into YAML, TOML, or pretty-printed JSON.</td>
+</tr>
+<tr>
+<td><code>meta::generate_metatags</code></td>
+<td><code>fn(&amp;Frontmatter) -&gt; MetaResult&lt;String&gt;</code></td>
+<td>Synthesizes entity-escaped HTML <code>&lt;meta&gt;</code>, Open Graph (<code>og:*</code>), and Twitter Card tags.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">03</span>
+<h2 class="step-title">Command-Line Interface (fmg) &amp; Error Diagnostics</h2>
+</div>
+<p>Compile with <code>--features cli</code> to use the <code>fmg</code> binary for extracting metadata or building static sites:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">bash — fmg subcommands</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-comment">&#35; Extract frontmatter from an input file in JSON, YAML, or TOML format</span></div>
+<div class="t-line"><span class="t-prompt">$</span>fmg extract &lt;INPUT&gt; [--format json|yaml|toml] [--output &lt;FILE&gt;]</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; Build a static site from Markdown content and Tera templates (requires --features cli,ssg)</span></div>
+<div class="t-line"><span class="t-prompt">$</span>fmg build --content-dir &lt;DIR&gt; --output-dir &lt;DIR&gt; [--template-dir &lt;DIR&gt;] [--base-url &lt;URL&gt;]</div>
+</div>
+</div>
+
+<p>Structured error types returned across the crate:</p>
+
+<div class="table-responsive my-3">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Error Type</th>
+<th>Module</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>error::Error</code></td>
+<td><code>frontmatter_gen::error</code></td>
+<td>Crate-wide error enum covering extraction, parsing (`yaml_line`, `toml_line`), and I/O errors.</td>
+</tr>
+<tr>
+<td><code>error::ParseError</code></td>
+<td><code>frontmatter_gen::error</code></td>
+<td>Returned by <code>extract</code>, <code>extractor</code>, and <code>parser</code> for missing fences, format errors, or budget violations.</td>
+</tr>
+<tr>
+<td><code>meta::MetaError</code></td>
+<td><code>frontmatter_gen::meta</code></td>
+<td>Returned when a frontmatter key or value fails HTML meta tag validation.</td>
+</tr>
+<tr>
+<td><code>config::ConfigError</code></td>
+<td><code>frontmatter_gen::config</code></td>
+<td>Returned when <code>ConfigBuilder</code> validation fails (empty site name or invalid directory paths).</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">04</span>
+<h2 class="step-title">Stability &amp; SemVer Contract</h2>
+</div>
+<p>In addition to Rust type and function signature stability, any change to the observable output of <code>extract_metadata</code> or <code>generate_metatags</code> for existing inputs is treated as a breaking change.</p>
+
+<div class="doc-visual-card">
+<picture>
+<source media="(max-width: 40rem)" srcset="https://cloudcdn.pro/stocks/images/quantum-computer-room-320.webp 320w, https://cloudcdn.pro/stocks/images/quantum-computer-room-640.webp 640w, https://cloudcdn.pro/stocks/images/quantum-computer-room-1200.webp 1200w" sizes="100vw">
+<img src="https://cloudcdn.pro/stocks/images/quantum-computer-room-1200.webp" alt="Deterministic Rust API and CLI architecture for frontmatter-gen" width="1200" height="675" loading="lazy" />
+</picture>
+<div class="doc-visual-caption">Predictable API contract: zero-copy borrowing, budget-guarded parsing, and deterministic HTML meta tag emission.</div>
+</div>
+</div>
+
+---
+
+Frontmatter Gen is architected around a deterministic, four-stage pipeline that strictly decouples **zero-copy boundary slicing** from **typed deserialization** and **downstream synthesis**. Callers that only need to strip or inspect raw frontmatter pay zero heap allocation costs.
+
+<h2>Four-Stage Processing Pipeline</h2>
+
+<div class="process-grid my-4">
+<article>
+<b>01</b>
+<h3>Boundary Slice</h3>
+<p>Strip optional UTF-8 BOM (<code>\u{FEFF}</code>) and split <code>(raw_frontmatter, body)</code> as borrowed <code>&amp;str</code> slices in a single forward scan.</p>
+<small>Zero Heap Allocations</small>
+</article>
+<article>
+<b>02</b>
+<h3>Format Classifier</h3>
+<p>Classify raw header slices as <code>Format::Yaml</code>, <code>Format::Toml</code>, <code>Format::Json</code>, or <code>Format::Unsupported</code> without regex overhead.</p>
+<small>O(n) Lexical Inspection</small>
+</article>
+<article>
+<b>03</b>
+<h3>Guarded Parser</h3>
+<p>Deserialize into <code>Frontmatter</code> via <code>noyalib</code>, <code>toml</code>, or <code>serde_json</code> while enforcing <code>max_depth</code> and <code>max_keys</code> budgets.</p>
+<small>Bounded Memory &amp; Depth</small>
+</article>
+<article>
+<b>04</b>
+<h3>Meta &amp; SSG Emit</h3>
+<p>Synthesize entity-escaped HTML <code>&lt;meta&gt;</code> tags, round-trip between formats via <code>to_string</code>, or render Tera templates.</p>
+<small>Deterministic Output</small>
+</article>
+</div>
+
+<h2>Deterministic Pipeline Execution Trace</h2>
+
+<p>The trace below illustrates how an input Markdown document flows through the four modules from raw <code>&amp;str</code> slice to escaped HTML meta tags:</p>
+
+<div class="terminal-box my-4">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">pipeline-trace — frontmatter-gen v0.0.15</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-key">Input:</span> &amp;str (<span class="t-val">&quot;---\ntitle: Hello\ncountry: NO\n---\n# Markdown Body&quot;</span>)</div>
+<div class="t-line"><span class="t-comment">[Stage 1: extractor::extract_raw_frontmatter] Strip optional UTF-8 BOM • Locate closing --- fence</span></div>
+<div class="t-line"><span class="t-comment">[Stage 1: zero-copy output] raw = &quot;title: Hello\ncountry: NO&quot; | body = &quot;\n# Markdown Body&quot; (0 heap allocs)</span></div>
+<div class="t-line"><span class="t-comment">[Stage 2: extractor::detect_format] Heuristic scan -&gt; Format::Yaml</span></div>
+<div class="t-line"><span class="t-comment">[Stage 3: parser::parse_with_options] noyalib YAML 1.2 parse • Check max_depth &amp; max_keys invariants</span></div>
+<div class="t-line"><span class="t-comment">[Stage 4: meta::generate_metatags] Emit escaped &lt;meta name=&quot;title&quot;&gt; and &lt;meta name=&quot;country&quot; content=&quot;NO&quot;&gt;</span></div>
+<div class="t-line"><span class="t-key">Status:</span> <span class="t-val">OK</span> • <span class="t-key">Extractor Latency:</span> <span class="t-val">~120 ns</span> • <span class="t-key">Unsafe Blocks:</span> <span class="t-val">0</span></div>
+</div>
+</div>
+
+<h2>Stage 1: Zero-Copy Boundary Slicing (<code>src/extractor.rs</code>)</h2>
+
+<p><code>extractor::extract_raw_frontmatter(content: &amp;str) -&gt; Result&lt;(&amp;str, &amp;str), ParseError&gt;</code> operates directly on the caller's UTF-8 string slice:</p>
+
+<ul>
+<li><strong>UTF-8 BOM Handling:</strong> Automatically strips a leading <code>\u{FEFF}</code> byte-order mark before inspecting opening delimiters.</li>
+<li><strong>Fence Scanning:</strong> Recognizes <code>---</code> (YAML) and <code>+++</code> (TOML) across both LF (<code>\n</code>) and CRLF (<code>\r\n</code>) line endings.</li>
+<li><strong>Balanced JSON Braces:</strong> Tracks nesting depth for leading <code>{ ... }</code> blocks while ignoring braces inside string literals and escape sequences.</li>
+</ul>
+
+<h2>Stage 2 &amp; 3: Format Detection &amp; Budgeted Parsing (<code>src/parser.rs</code>)</h2>
+
+<p>Once extracted, <code>detect_format</code> routes the raw slice to one of three pure-Rust parsers while <code>ParseOptions</code> enforces structural invariants:</p>
+
+<ul>
+<li><strong>YAML 1.2 Engine (<code>noyalib</code>):</strong> Preserves explicit YAML tags as <code>Value::Tagged(tag, Box&lt;Value&gt;)</code> and avoids YAML 1.1 boolean coercion.</li>
+<li><strong>TOML 1.1 Engine (<code>toml</code>):</strong> Converts TOML tables and native ISO 8601 datetimes into canonical <code>Frontmatter</code> entries.</li>
+<li><strong>JSON Engine (<code>serde_json</code>):</strong> Parses RFC 8259 JSON objects with exact integer and floating-point preservation.</li>
+<li><strong>DoS Budget Checks:</strong> <code>check_depth</code> and <code>count_keys</code> validate nesting depth and total key counts against <code>ParseOptions</code>.</li>
+</ul>
+
+<div class="doc-visual-card">
+<picture>
+<source media="(max-width: 40rem)" srcset="https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-320.webp 320w, https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-640.webp 640w, https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-1200.webp 1200w" sizes="100vw">
+<img src="https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-1200.webp" alt="Frontmatter Gen pipeline architecture and deterministic execution" width="1200" height="675" loading="lazy" />
+</picture>
+<div class="doc-visual-caption">Modular compilation: zero-copy slicing, YAML 1.2 / TOML 1.1 / JSON parsing, and opt-in CLI and SSG feature flags.</div>
+</div>
+
+<h2>Stage 4: Meta Synthesis &amp; Feature Isolation</h2>
+
+<p>To keep compile times and dependency trees minimal for library consumers, heavy application dependencies are gated behind Cargo features:</p>
+
+<div class="table-responsive my-3">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Feature Flag</th>
+<th>Default</th>
+<th>Included Modules &amp; Dependencies</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>default = []</code></td>
+<td>Yes</td>
+<td>Core library (<code>extractor</code>, <code>parser</code>, <code>meta</code>, <code>error</code>, <code>noyalib</code>, <code>toml</code>, <code>serde_json</code>).</td>
+</tr>
+<tr>
+<td><code>cli</code></td>
+<td>Opt-in</td>
+<td>Adds the <code>fmg</code> binary target, <code>clap</code> CLI parser, <code>tokio</code> async runtime, and structured logging.</td>
+</tr>
+<tr>
+<td><code>ssg</code></td>
+<td>Opt-in</td>
+<td>Adds <code>config</code>, <code>engine</code>, <code>fs</code>, <code>markdown</code>, and <code>template</code> modules (<code>tera</code> + <code>comrak</code>).</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+---
+
+Frontmatter Gen ships with six reproducible Criterion.rs benchmark suites under `benches/` covering every stage of the pipeline from zero-copy fence splitting to full static site page rendering.
+
+<div class="stat-grid my-4">
+<div class="stat-card">
+<div class="stat-figure">0 B</div>
+<div class="stat-label">Extractor Heap Copy</div>
+</div>
+<div class="stat-card">
+<div class="stat-figure">6 Suites</div>
+<div class="stat-label">Criterion Benchmarks</div>
+</div>
+<div class="stat-card">
+<div class="stat-figure">O(n)</div>
+<div class="stat-label">Single-Pass Scanner</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">01</span>
+<h2 class="step-title">Criterion Benchmark Suites (`benches/`)</h2>
+</div>
+<p>Each subsystem has a dedicated Criterion harness so performance regressions are isolated to the exact pipeline stage:</p>
+
+<div class="table-responsive my-3">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Benchmark Target</th>
+<th>Source File</th>
+<th>Measured Operations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extractor_bench</code></td>
+<td><code>benches/extractor_bench.rs</code></td>
+<td>Zero-copy <code>extract_raw_frontmatter</code> and <code>detect_format</code> across YAML, TOML, and JSON payloads.</td>
+</tr>
+<tr>
+<td><code>parser_bench</code></td>
+<td><code>benches/parser_bench.rs</code></td>
+<td><code>parser::parse</code>, <code>parse_with_options</code> (with depth and key budgets), and <code>to_string</code> serialization.</td>
+</tr>
+<tr>
+<td><code>meta_bench</code></td>
+<td><code>benches/meta_bench.rs</code></td>
+<td><code>meta::generate_metatags</code> over scalar, array, Open Graph, Twitter Card, and HTML-escaped fields.</td>
+</tr>
+<tr>
+<td><code>lib_bench</code></td>
+<td><code>benches/lib_bench.rs</code></td>
+<td>End-to-end <code>frontmatter_gen::extract</code> across small, medium, and large 1,000-key documents.</td>
+</tr>
+<tr>
+<td><code>config_bench</code></td>
+<td><code>benches/config_bench.rs</code></td>
+<td><code>ConfigBuilder</code> construction, validation, and serialization under the <code>ssg</code> feature.</td>
+</tr>
+<tr>
+<td><code>error_bench</code></td>
+<td><code>benches/error_bench.rs</code></td>
+<td><code>Error</code> and <code>ParseError</code> construction, line-number extraction, and <code>Display</code> formatting.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">02</span>
+<h2 class="step-title">Reproducing Benchmarks Locally</h2>
+</div>
+<p>Run the Criterion suites on your own hardware to generate statistical HTML reports in <code>target/criterion/</code>:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">bash — cargo bench</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-comment">&#35; Run all 6 Criterion benchmark suites</span></div>
+<div class="t-line"><span class="t-prompt">$</span>cargo bench --all-features</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-comment">&#35; Run only the zero-copy extractor or parser benchmarks</span></div>
+<div class="t-line"><span class="t-prompt">$</span>cargo bench --bench extractor_bench</div>
+<div class="t-line"><span class="t-prompt">$</span>cargo bench --bench parser_bench</div>
+</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">03</span>
+<h2 class="step-title">Allocation Profile by Pipeline Stage</h2>
+</div>
+<p>Because <code>extractor::extract_raw_frontmatter</code> only scans for opening and closing delimiters, its runtime is independent of the size of the Markdown body that follows the closing fence:</p>
+
+<div class="table-responsive my-3">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Operation</th>
+<th>Time Complexity</th>
+<th>Heap Allocations</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><code>extractor::extract_raw_frontmatter</code></td>
+<td><code>O(header_bytes)</code></td>
+<td><strong>0 allocations</strong> (borrows <code>(&amp;str, &amp;str)</code> from input)</td>
+</tr>
+<tr>
+<td><code>extractor::detect_format</code></td>
+<td><code>O(header_lines)</code></td>
+<td><strong>0 allocations</strong> (inspects trimmed slices in place)</td>
+</tr>
+<tr>
+<td><code>parser::parse_with_options</code></td>
+<td><code>O(header_bytes)</code></td>
+<td>1 <code>Frontmatter</code> map + recursive <code>Value</code> nodes</td>
+</tr>
+<tr>
+<td><code>meta::generate_metatags</code></td>
+<td><code>O(keys)</code></td>
+<td>1 output <code>String</code> buffer with entity-escaped tags</td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="doc-visual-card">
+<picture>
+<source media="(max-width: 40rem)" srcset="https://cloudcdn.pro/stocks/images/quantum-computer-room-320.webp 320w, https://cloudcdn.pro/stocks/images/quantum-computer-room-640.webp 640w, https://cloudcdn.pro/stocks/images/quantum-computer-room-1200.webp 1200w" sizes="100vw">
+<img src="https://cloudcdn.pro/stocks/images/quantum-computer-room-1200.webp" alt="High-throughput Rust benchmarking and zero-copy slice extraction" width="1200" height="675" loading="lazy" />
+</picture>
+<div class="doc-visual-caption">Sub-microsecond slice extraction: Markdown bodies of any size are returned as zero-copy borrowed slices without scanning past the closing fence.</div>
+</div>
+</div>
+
+---
+
+Frontmatter Gen is designed as a composable building block for any Rust service or CLI workflow that processes Markdown or structured text documents.
+
+<div class="stat-grid my-4">
+<div class="stat-card">
+<div class="stat-figure">3 Formats</div>
+<div class="stat-label">YAML 1.2, TOML &amp; JSON</div>
+</div>
+<div class="stat-card">
+<div class="stat-figure">0 B Copy</div>
+<div class="stat-label">Raw Slice Extraction</div>
+</div>
+<div class="stat-card">
+<div class="stat-figure">100%</div>
+<div class="stat-label">Safe Rust Execution</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">01</span>
+<h2 class="step-title">Static Site Generators &amp; Documentation Portals</h2>
+</div>
+<p>Static site compilers frequently ingest thousands of Markdown pages authored across different eras or migrated from Hugo (TOML <code>+++</code>), Jekyll/Astro (YAML <code>---</code>), or headless CMS exports (JSON <code>{ ... }</code>). <code>frontmatter-gen</code> normalizes all three into a single <code>Frontmatter</code> type and synthesizes escaped HTML <code>&lt;meta&gt;</code> tags:</p>
+
+<div class="table-responsive my-3">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Pipeline Capability</th>
+<th>Legacy Regex / YAML 1.1 Stack</th>
+<th>Frontmatter Gen Engine</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Supported Header Formats</strong></td>
+<td>Separate crates per format</td>
+<td><strong>Unified YAML 1.2, TOML 1.1 &amp; JSON</strong> in one crate</td>
+</tr>
+<tr>
+<td><strong>YAML 1.1 Norway Problem</strong></td>
+<td>Unquoted <code>NO</code> / <code>off</code> coerced to booleans</td>
+<td><strong>Strict YAML 1.2</strong> preserves unquoted strings via <code>noyalib</code></td>
+</tr>
+<tr>
+<td><strong>Body Slicing Overhead</strong></td>
+<td>Allocates new <code>String</code> copies of Markdown body</td>
+<td><strong>Zero-copy borrowed <code>&amp;str</code></strong> via <code>extract_raw_frontmatter</code></td>
+</tr>
+<tr>
+<td><strong>SEO Meta Tag Generation</strong></td>
+<td>Manual string concatenation prone to unescaped quotes</td>
+<td><strong>Built-in entity-escaped</strong> <code>meta::generate_metatags</code></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">rust — static site page compiler</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::{extract, meta::generate_metatags};</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-key">pub fn</span> <span class="t-val">compile_page</span>(source: &amp;str) -&gt; Result&lt;(String, &amp;str), Box&lt;<span class="t-key">dyn</span> std::error::Error&gt;&gt; {</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">let</span> (frontmatter, markdown_body) = extract(source)?;</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;<span class="t-key">let</span> head_meta_tags = generate_metatags(&amp;frontmatter)?;</div>
+<div class="t-line">&nbsp;&nbsp;&nbsp;&nbsp;Ok((head_meta_tags, markdown_body))</div>
+<div class="t-line">}</div>
+</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">02</span>
+<h2 class="step-title">Multi-Tenant Content APIs &amp; Untrusted Upload Guardrails</h2>
+</div>
+<p>When accepting user-authored Markdown files over HTTP or webhook integrations, <code>ParseOptions</code> bounds recursion depth and total key counts before application logic runs:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">rust — untrusted webhook ingestion</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::extractor::{detect_format, extract_raw_frontmatter};</div>
+<div class="t-line"><span class="t-key">use</span> frontmatter_gen::parser::{parse_with_options, ParseOptions};</div>
+<div class="t-line">&nbsp;</div>
+<div class="t-line"><span class="t-key">let</span> (raw, body) = extract_raw_frontmatter(untrusted_markdown)?;</div>
+<div class="t-line"><span class="t-key">let</span> budget = ParseOptions { validate: <span class="t-val">true</span>, max_depth: Some(<span class="t-val">6</span>), max_keys: Some(<span class="t-val">50</span>) };</div>
+<div class="t-line"><span class="t-key">let</span> verified_fm = parse_with_options(raw, detect_format(raw), &amp;budget)?;</div>
+</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">03</span>
+<h2 class="step-title">CI/CD Documentation Linters &amp; Cross-Format Migration</h2>
+</div>
+<p>Use the standalone <code>fmg</code> CLI in GitHub Actions or pre-commit hooks to validate that every Markdown document in a repository contains well-formed frontmatter and convert legacy TOML headers into JSON or YAML:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">bash — ci frontmatter validation &amp; conversion</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-comment">&#35; Validate and convert a TOML-header Markdown file&#39;s frontmatter to JSON</span></div>
+<div class="t-line"><span class="t-prompt">$</span>fmg extract docs/guide.md --format json --output /tmp/guide-meta.json</div>
+</div>
+</div>
+
+<div class="doc-visual-card">
+<picture>
+<source media="(max-width: 40rem)" srcset="https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-320.webp 320w, https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-640.webp 640w, https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-1200.webp 1200w" sizes="100vw">
+<img src="https://cloudcdn.pro/stocks/images/vadim-sherbakov-xS_RzdD5CFE-1200.webp" alt="Enterprise content pipeline and static site generation workflow" width="1200" height="675" loading="lazy" />
+</picture>
+<div class="doc-visual-caption">Unified document metadata: ingest YAML 1.2, TOML 1.1, and JSON frontmatter across library, CLI, and static site pipelines.</div>
+</div>
+</div>
+
+---
+
+Frontmatter parsers frequently sit at the trust boundary of content management systems, documentation portals, and static site pipelines where Markdown files arrive from external contributors or untrusted repositories. Frontmatter Gen enforces five layers of verification to ensure untrusted inputs cannot trigger memory unsafety, resource exhaustion, or HTML injection.
+
+<div class="stat-grid my-4">
+<div class="stat-card">
+<div class="stat-figure">0 Unsafe</div>
+<div class="stat-label">#![forbid(unsafe_code)]</div>
+</div>
+<div class="stat-card">
+<div class="stat-figure">100%</div>
+<div class="stat-label">Unit Test Coverage</div>
+</div>
+<div class="stat-card">
+<div class="stat-figure">4 Targets</div>
+<div class="stat-label">LibFuzzer Harnesses</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">01</span>
+<h2 class="step-title">Memory Safety &amp; Miri Tree Borrows Verification</h2>
+</div>
+<p>Both <code>src/lib.rs</code> and <code>src/main.rs</code> declare <code>#![forbid(unsafe_code)]</code>, and the YAML 1.2 dependency <code>noyalib</code> is likewise 100% safe Rust. Every pull request runs the test suite under <strong>Miri</strong> with strict provenance and Tree Borrows aliasing checks:</p>
+
+<div class="terminal-box my-3">
+<div class="terminal-bar">
+<span class="terminal-dot dot-red"></span>
+<span class="terminal-dot dot-yellow"></span>
+<span class="terminal-dot dot-green"></span>
+<span class="terminal-title">bash — miri tree borrows verification</span>
+</div>
+<div class="terminal-body">
+<div class="t-line"><span class="t-comment">&#35; Run Miri across minimal and default feature sets with Tree Borrows</span></div>
+<div class="t-line"><span class="t-prompt">$</span>MIRIFLAGS=<span class="t-val">&quot;-Zmiri-strict-provenance -Zmiri-tree-borrows -Zmiri-symbolic-alignment-check&quot;</span> cargo +nightly miri test --lib --no-default-features --locked</div>
+<div class="t-line"><span class="t-prompt">$</span>MIRIFLAGS=<span class="t-val">&quot;-Zmiri-strict-provenance -Zmiri-tree-borrows -Zmiri-symbolic-alignment-check&quot;</span> cargo +nightly miri test --lib --locked</div>
+</div>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">02</span>
+<h2 class="step-title">DoS Budget Guardrails &amp; Fuzzing Harnesses</h2>
+</div>
+<p>Untrusted YAML, TOML, or JSON headers can attempt denial-of-service via deeply nested structures or thousands of keys. <code>parser::parse_with_options</code> enforces deterministic budgets before returning a <code>Frontmatter</code> value, backed by four structure-aware <code>cargo-fuzz</code> targets:</p>
+
+<div class="table-responsive my-3">
+<table class="visage-table">
+<thead>
+<tr>
+<th>Verification Control</th>
+<th>Target / API</th>
+<th>Security Guarantee</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><strong>Nesting Depth Budget</strong></td>
+<td><code>ParseOptions::max_depth</code></td>
+<td>Rejects YAML, TOML, or JSON trees nested deeper than <code>max_depth</code> levels.</td>
+</tr>
+<tr>
+<td><strong>Key Count Budget</strong></td>
+<td><code>ParseOptions::max_keys</code></td>
+<td>Rejects frontmatter payloads containing more than <code>max_keys</code> total keys across all maps.</td>
+</tr>
+<tr>
+<td><strong>HTML Entity Escaping</strong></td>
+<td><code>meta::generate_metatags</code></td>
+<td>Escapes <code>&amp;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&quot;</code>, and <code>&#39;</code> in all generated <code>&lt;meta&gt;</code> attributes.</td>
+</tr>
+<tr>
+<td><strong>LibFuzzer Harnesses</strong></td>
+<td><code>fuzz/fuzz_targets/*.rs</code></td>
+<td>Continuous fuzzing across <code>extract_frontmatter</code>, <code>parse_yaml</code>, <code>parse_toml</code>, and <code>parse_json</code>.</td>
+</tr>
+<tr>
+<td><strong>Supply-Chain Audits</strong></td>
+<td><code>cargo-deny</code>, <code>cargo-vet</code>, <code>cargo-audit</code></td>
+<td>Verifies license policies, RustSec advisories, and third-party crate audits on every CI run.</td>
+</tr>
+</tbody>
+</table>
+</div>
+</div>
+
+<div class="step-item">
+<div class="step-header">
+<span class="step-badge">03</span>
+<h2 class="step-title">Vulnerability Disclosure Policy (RFC 9116)</h2>
+</div>
+<p>If you discover a security vulnerability in <code>frontmatter-gen</code>, please report it privately via <a href="https://github.com/sebastienrousseau/frontmatter-gen/security/advisories/new">GitHub Security Advisories</a> or email <a href="mailto:sebastien.rousseau@gmail.com">sebastien.rousseau@gmail.com</a>. See our machine-readable <a href="/.well-known/security.txt">/.well-known/security.txt</a> for RFC 9116 disclosure metadata.</p>
+
+<div class="doc-visual-card">
+<picture>
+<source media="(max-width: 40rem)" srcset="https://cloudcdn.pro/stocks/images/block-chain-3055701-320.webp 320w, https://cloudcdn.pro/stocks/images/block-chain-3055701-640.webp 640w, https://cloudcdn.pro/stocks/images/block-chain-3055701-1200.webp 1200w" sizes="100vw">
+<img src="https://cloudcdn.pro/stocks/images/block-chain-3055701-1200.webp" alt="Formal verification, Miri Tree Borrows, and supply-chain security for frontmatter-gen" width="1200" height="675" loading="lazy" />
+</picture>
+<div class="doc-visual-caption">Defense-in-depth assurance: #![forbid(unsafe_code)], Miri Tree Borrows, 100% unit test coverage, and REUSE 3.3 licensing compliance.</div>
+</div>
+</div>
+
+---
+
+<div class="faq-container">
+<div class="faq-search-box">
+<span class="faq-search-icon" aria-hidden="true"></span>
+<input type="search" class="faq-search-input" id="faqSearchInput" placeholder="Filter questions by keyword (e.g. YAML 1.2, zero-copy, ParseOptions, Miri, CLI)..." aria-label="Search frequently asked questions" />
+</div>
+
+<div class="faq-filter-pills" role="tablist" aria-label="FAQ Categories">
+<button class="faq-pill active" data-filter="all" type="button">All Questions <span class="pill-count">16</span></button>
+<button class="faq-pill" data-filter="architecture" type="button">Architecture &amp; Formats <span class="pill-count">4</span></button>
+<button class="faq-pill" data-filter="security" type="button">Security &amp; Verification <span class="pill-count">4</span></button>
+<button class="faq-pill" data-filter="integration" type="button">API &amp; CLI Integration <span class="pill-count">4</span></button>
+<button class="faq-pill" data-filter="compliance" type="button">Toolchain &amp; Licensing <span class="pill-count">4</span></button>
+</div>
+
+<div class="faq-action-bar">
+<span class="faq-count-label" id="faqCountLabel">Showing 16 of 16 questions</span>
+<button type="button" class="faq-toggle-all-btn" id="faqToggleAllBtn" aria-expanded="false">
+<span class="btn-text">Expand all</span>
+<span class="chevron" aria-hidden="true"></span>
+</button>
+</div>
+
+<div class="faq-list" id="faqList">
+<details class="faq-card" data-category="architecture">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Formats</span>
+<span class="faq-question">Which frontmatter formats does frontmatter-gen support out of the box?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p><code>frontmatter-gen</code> supports three formats out of the box with no feature flags required: <strong>YAML 1.2</strong> (bounded by <code>---</code> fences, parsed via <code>noyalib</code>), <strong>TOML 1.1</strong> (bounded by <code>+++</code> fences, parsed via <code>toml</code>), and <strong>JSON</strong> (a balanced leading <code>{ ... }</code> object or fenced JSON block, parsed via <code>serde_json</code>).</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="architecture">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">YAML 1.2</span>
+<span class="faq-question">Why did frontmatter-gen switch from serde_yml / serde_yaml to noyalib?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p><code>serde_yaml</code> was archived upstream in March 2024 and implements YAML 1.1, which suffers from the Norway problem (unquoted <code>NO</code>, <code>no</code>, <code>on</code>, and <code>off</code> coerce to booleans). <code>noyalib</code> is an actively maintained, pure-Rust YAML 1.2 parser with zero <code>unsafe</code> code that keeps unquoted <code>no</code> and <code>off</code> as strings and preserves explicit YAML tags via <code>Value::Tagged</code> (ADR-0003).</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="architecture">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Zero-Copy</span>
+<span class="faq-question">Is extract_raw_frontmatter truly zero-copy?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>Yes. <code>extractor::extract_raw_frontmatter(content: &amp;str) -&gt; Result&lt;(&amp;str, &amp;str), ParseError&gt;</code> performs a single forward scan and returns two sub-slices borrowed directly from <code>content</code>. Neither the raw frontmatter slice nor the Markdown body slice is copied to the heap.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="architecture">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Encoding</span>
+<span class="faq-question">How are UTF-8 byte-order marks (BOM) and CRLF line endings handled?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>If an input document starts with a UTF-8 BOM (<code>\u{FEFF}</code>), <code>extract_raw_frontmatter</code> strips the 3-byte prefix before checking for opening delimiters. Both Unix (<code>\n</code>) and Windows (<code>\r\n</code>) line endings are supported across YAML, TOML, and JSON extraction.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="security">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">DoS Budgets</span>
+<span class="faq-question">How do I protect against deeply nested or oversized frontmatter payloads?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>Pass a <code>ParseOptions</code> struct to <code>parser::parse_with_options</code> with <code>max_depth</code> (for example, <code>Some(8)</code>) and <code>max_keys</code> (for example, <code>Some(64)</code>). If the parsed frontmatter exceeds either limit, <code>parse_with_options</code> returns <code>Err(ParseError::InvalidFrontmatter)</code> immediately.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="security">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Memory Safety</span>
+<span class="faq-question">Does frontmatter-gen contain any unsafe Rust blocks?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>No. Both the library crate (<code>src/lib.rs</code>) and binary crate (<code>src/main.rs</code>) declare <code>#![forbid(unsafe_code)]</code>. Any attempt to introduce an <code>unsafe</code> block fails compilation immediately.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="security">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Miri &amp; Fuzzing</span>
+<span class="faq-question">How is memory safety verified beyond the Rust borrow checker?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>Every pull request runs the unit test suite under <strong>Miri</strong> with <code>-Zmiri-strict-provenance -Zmiri-tree-borrows -Zmiri-symbolic-alignment-check</code> across both <code>--no-default-features</code> and default feature sets, alongside 4 structure-aware <code>cargo-fuzz</code> targets and <code>proptest</code> property suites.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="security">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">XSS Prevention</span>
+<span class="faq-question">Does generate_metatags escape HTML special characters against XSS?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>Yes. <code>meta::generate_metatags</code> escapes <code>&amp;</code>, <code>&lt;</code>, <code>&gt;</code>, <code>&quot;</code>, and <code>&#39;</code> in all attribute values so untrusted frontmatter strings cannot break out of <code>content=&quot;...&quot;</code> attributes or inject script tags.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="integration">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Rust Crate</span>
+<span class="faq-question">How do I integrate frontmatter-gen into an existing Rust application?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>Add the dependency to your <code>Cargo.toml</code>:</p>
+<pre><code>[dependencies]&#10;frontmatter-gen = &quot;0.0.15&quot;</code></pre>
+<p>Then extract and parse any Markdown document in one call:</p>
+<pre><code>use frontmatter_gen::{extract, Value};&#10;fn main() -&gt; Result&lt;(), Box&lt;dyn std::error::Error&gt;&gt; {&#10;    let (fm, body) = extract(&quot;---\ntitle: Hello\n---\n# Body&quot;)?;&#10;    assert_eq!(fm.get(&quot;title&quot;), Some(&amp;Value::String(&quot;Hello&quot;.into())));&#10;    assert_eq!(body.trim(), &quot;# Body&quot;);&#10;    Ok(())&#10;}</code></pre>
+</div>
+</details>
+
+<details class="faq-card" data-category="integration">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Format Conversion</span>
+<span class="faq-question">Can I convert frontmatter from one format to another (e.g. YAML to TOML or JSON)?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>Yes. Because YAML, TOML, and JSON all deserialize into the same <code>Frontmatter</code> type, you can parse a YAML header and call <code>frontmatter_gen::parser::to_string(&amp;fm, Format::Toml)</code> or <code>to_string(&amp;fm, Format::Json)</code> to serialize it into another format.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="integration">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">YAML Tags</span>
+<span class="faq-question">How does frontmatter-gen handle explicit YAML 1.2 tags like !custom?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>Explicit YAML tags are preserved as <code>Value::Tagged(String, Box&lt;Value&gt;)</code> where the first element is the tag name without the leading <code>!</code> and the second element is the inner <code>Value</code>. You can inspect them via <code>val.as_tagged()</code>.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="integration">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">CLI &amp; SSG</span>
+<span class="faq-question">What is the difference between the default library, the cli feature, and the ssg feature?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>The default library provides <code>extract</code>, <code>extractor</code>, <code>parser</code>, <code>meta</code>, and <code>error</code> with minimal dependencies. Enabling <code>--features cli</code> builds the <code>fmg</code> binary with <code>clap</code> and <code>tokio</code>. Enabling <code>--features ssg</code> adds the static site builder module powered by <code>tera</code> and <code>comrak</code>.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="compliance">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">MSRV</span>
+<span class="faq-question">What is the Minimum Supported Rust Version (MSRV)?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p><code>frontmatter-gen</code> targets <strong>Rust 1.85.0</strong> and <strong>Rust Edition 2024</strong>. The MSRV is verified in CI on every pull request.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="compliance">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Stability</span>
+<span class="faq-question">What constitutes a breaking change in frontmatter-gen?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>In addition to Rust type and signature changes, any change to the observable output of <code>extract_metadata</code> or <code>generate_metatags</code> for existing inputs is treated as a breaking change under our stability policy.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="compliance">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Licensing</span>
+<span class="faq-question">Under what license is frontmatter-gen distributed?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p><code>frontmatter-gen</code> is dual-licensed under the <strong>Apache License, Version 2.0</strong> and the <strong>MIT License</strong> (<code>Apache-2.0 OR MIT</code>) at the recipient's option, and is 100% REUSE 3.3 compliant.</p>
+</div>
+</details>
+
+<details class="faq-card" data-category="compliance">
+<summary class="faq-summary">
+<span class="faq-question-wrap">
+<span class="faq-category-badge">Support</span>
+<span class="faq-question">Where can I report bugs, request features, or ask integration questions?</span>
+</span>
+<span class="faq-icon" aria-hidden="true"></span>
+</summary>
+<div class="faq-answer">
+<p>Open an issue or discussion on <a href="https://github.com/sebastienrousseau/frontmatter-gen">GitHub</a>, or reach out via our <a href="/contact/index.html">Contact Page</a>. For security vulnerabilities, follow our <a href="/security/index.html">Security Policy</a>.</p>
+</div>
+</details>
+</div>
+
+<div class="faq-no-results" id="faqNoResults" role="status" aria-live="polite">
+<div class="faq-no-results-icon" aria-hidden="true"></div>
+<h2>No matching questions found</h2>
+<p>Try searching for broader terms such as &ldquo;YAML 1.2&rdquo;, &ldquo;TOML&rdquo;, &ldquo;Miri&rdquo;, or &ldquo;CLI&rdquo;.</p>
+<button type="button" class="faq-reset-btn" id="faqResetBtn">Reset search &amp; filters</button>
+</div>
+
+<div class="faq-help-card">
+<div class="faq-help-icon" aria-hidden="true"></div>
+<div class="faq-help-content">
+<h2>Have a question not listed here?</h2>
+<p>Explore the getting started guide and API reference, open an issue on GitHub, or contact us directly for architecture and integration support.</p>
+<div class="faq-help-actions">
+<a href="/getting-started/index.html" class="primary">Getting Started Guide</a>
+<a href="https://github.com/sebastienrousseau/frontmatter-gen/issues" class="secondary" target="_blank" rel="noopener">GitHub Issues</a>
+<a href="/contact/index.html" class="secondary">Contact Support</a>
+</div>
+</div>
+</div>
+</div>
+
+---
+
+<div class="author-pedigree-strip my-4">
+<div class="author-avatar-wrap">
+<img src="https://cloudcdn.pro/stocks/images/sebastien-rousseau-20260617-5th-commercialising-quantum-1-320.webp" alt="Sebastien Rousseau" class="author-avatar" width="96" height="96" />
+</div>
+<div class="author-bio-content">
+<h2 class="author-name mb-1">Sebastien Rousseau</h2>
+<div class="author-role">Principal Systems Architect · Creator of Frontmatter Gen, Noyalib &amp; SSG</div>
+<p class="author-text">Sebastien Rousseau has spent nearly two decades architecting, building, and securing high-throughput document processing engines, institutional financial systems, and open-source Rust libraries in London. Explore his publications, open-source portfolio, and advisory work at <a href="https://sebastienrousseau.com/">sebastienrousseau.com</a>.</p>
+</div>
+</div>
+
+<h2>Engineering Pedigree &amp; Ecosystem</h2>
+
+<p>Frontmatter Gen is part of a cohesive ecosystem of pure-Rust libraries engineered for static site compilation, structured metadata extraction, and standards-compliant parsing:</p>
+
+<ul>
+<li><strong>Frontmatter Gen (<code>frontmatter-gen</code>):</strong> Zero-copy frontmatter extraction and multi-format parsing for YAML 1.2, TOML 1.1, and JSON with HTML meta tag synthesis and 100% unit test coverage.</li>
+<li><strong>Noyalib (<code>noyalib</code>):</strong> Pure-Rust YAML 1.2 parser and serializer with zero <code>unsafe</code> code, configurable DoS budgets, and explicit YAML tag preservation.</li>
+<li><strong>Static Site Generator (<code>ssg</code> / <code>staticdatagen</code>):</strong> Rust static site compiler with built-in WCAG AAA contrast auditing, Subresource Integrity (SRI), and CycloneDX SBOM generation.</li>
+<li><strong>Skeletonic CSS:</strong> Accessible, token-driven CSS design system engineered for WCAG 2.2 Level AAA compliance across light and dark modes.</li>
+<li><strong>Personal Website &amp; Research:</strong> Visit <a href="https://sebastienrousseau.com/">sebastienrousseau.com</a> for technical articles, architecture notes, and open-source releases.</li>
+</ul>
+
+---
+
+All notable changes to **Frontmatter Gen** (`frontmatter-gen`) are documented below following strict `+0.0.1` Semantic Versioning.
+
+## [v0.0.15] - 2026-10-31
+### Fixed
+- Resolved a Miri symbolic alignment check failure (`_mm_load_si128` 16-byte alignment requirement on 8-byte aligned slice inside `memchr` 2.8.2) during `edge_case_tests::test_large_frontmatter` by upgrading `noyalib` to `0.0.60`.
+### Added
+- Reached **100.00% line, function, and region unit test coverage** across all 10 source files (`src/lib.rs`, `src/extractor.rs`, `src/parser.rs`, `src/meta.rs`, `src/error.rs`, `src/config.rs`, `src/engine.rs`, `src/fs.rs`, `src/markdown.rs`, `src/template.rs`).
+
+## [v0.0.14] - 2026-04-19
+### Changed
+- Migrated YAML parsing and serialization from `serde_yml` (archived YAML 1.1) to pure-Rust **`noyalib`** (YAML 1.2) as recorded in ADR-0003.
+- Preserved explicit YAML 1.2 tags via `Value::Tagged(String, Box<Value>)` and `Value::as_tagged()`.
+- Added `ParseOptions` (`validate`, `max_depth`, `max_keys`) and `parser::parse_with_options` for configurable DoS budget enforcement.
+- Added Miri verification with `-Zmiri-strict-provenance -Zmiri-tree-borrows -Zmiri-symbolic-alignment-check`, 4 `cargo-fuzz` targets, and `cargo-vet` supply-chain auditing.
+
+## [v0.0.1 - v0.0.13] - 2023-2026
+### Added
+- Core zero-copy frontmatter extraction (`extractor::extract_raw_frontmatter`), automatic format detection (`detect_format`), multi-format parsing (YAML, TOML, JSON), HTML meta tag synthesis (`meta::generate_metatags`), optional `cli` (`fmg`) binary, and optional `ssg` static site builder.
+- Full historical release notes are available in the [GitHub CHANGELOG.md](https://github.com/sebastienrousseau/frontmatter-gen/blob/main/CHANGELOG.md).

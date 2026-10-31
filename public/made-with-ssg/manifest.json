@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "description": "How frontmatter-gen.com is compiled with Rust Static Site Generator (SSG) and Skeletonic CSS with Subresource Integrity ",
+  "display": "standalone",
+  "icons": [],
+  "name": "Frontmatter Gen",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "frontmatter-",
+  "start_url": ".",
+  "theme_color": "#8f250c"
+}

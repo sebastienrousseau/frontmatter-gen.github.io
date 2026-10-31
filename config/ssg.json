@@ -1,0 +1,14 @@
+{
+  "title": "Frontmatter Gen",
+  "description": "Zero-copy frontmatter extraction and multi-format parsing library and CLI for YAML 1.2, TOML, and JSON in Rust with HTML meta tag generation and zero unsafe code.",
+  "url": "https://frontmatter-gen.com",
+  "base_url": "https://frontmatter-gen.com",
+  "author": "Sebastien Rousseau",
+  "language": "en-GB",
+  "theme_color": "#8f250c",
+  "background_color": "#f8f5ef",
+  "cdn": "https://cloudcdn.pro",
+  "logo": "https://cloudcdn.pro/clients/frontmatter-gen/v1/logos/frontmatter-gen.svg",
+  "banner": "https://cloudcdn.pro/clients/frontmatter-gen/v1/logos/frontmatter-gen.svg",
+  "wcag_level": "AAA"
+}

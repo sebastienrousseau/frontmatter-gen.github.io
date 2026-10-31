@@ -1,0 +1,173 @@
+[
+  {
+    "date": "2026-10-31",
+    "description": "Learn about Sebastien Rousseau, author of frontmatter-gen, noyalib, staticdatagen, and Skeletonic CSS, and the engineering principles behind the crate.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "About Sebastien Rousseau | Frontmatter Gen Author",
+    "url": "https://frontmatter-gen.com/about/",
+    "wordCount": 201
+  },
+  {
+    "date": "2026-10-31",
+    "description": "WCAG 2.2 Level AAA conformance statement for frontmatter-gen.com covering contrast verification (at least 7.0 to 1), keyboard navigation, and reduced motion.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Accessibility Statement: WCAG 2.2 Level AAA Compliance",
+    "url": "https://frontmatter-gen.com/accessibility/",
+    "wordCount": 94
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Complete API reference for frontmatter-gen v0.0.15: Frontmatter, Value, Format, ParseOptions, extract_raw_frontmatter, generate_metatags, and the fmg CLI.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "API & CLI Reference: Rust Types, Functions & fmg Commands",
+    "url": "https://frontmatter-gen.com/api/",
+    "wordCount": 762
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Explore the four-stage architecture of frontmatter-gen: zero-copy fence extraction, format detection, budget-guarded parsing, and HTML meta tag synthesis.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Pipeline Architecture: Zero-Copy Slicing & Parsing in Rust",
+    "url": "https://frontmatter-gen.com/architecture/",
+    "wordCount": 594
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Explore the 6 Criterion benchmark suites in frontmatter-gen v0.0.15 measuring zero-copy extraction, YAML/TOML/JSON parsing, and HTML meta tag synthesis.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Performance Benchmarks: Criterion Suites & Zero-Copy Latency",
+    "url": "https://frontmatter-gen.com/benchmarks/",
+    "wordCount": 429
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Release history and semantic changelog for frontmatter-gen through v0.0.15 and the frontmatter-gen.com documentation portal.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Changelog & Release History: Frontmatter Gen",
+    "url": "https://frontmatter-gen.com/changelog/",
+    "wordCount": 188
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Get in touch with Sebastien Rousseau and the frontmatter-gen maintainers for bug reports, architectural inquiries, or security disclosures.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Contact & Support | Frontmatter Gen",
+    "url": "https://frontmatter-gen.com/contact/",
+    "wordCount": 87
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Contribution guidelines for frontmatter-gen and frontmatter-gen.com: +0.0.1 versioning, signed commits, 100% test coverage, Miri, and REUSE 3.3 compliance.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Contributing Guide: Quality Gates & Verification",
+    "url": "https://frontmatter-gen.com/contributing/",
+    "wordCount": 274
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Answers to 16 common questions about frontmatter-gen: YAML 1.2 vs YAML 1.1, zero-copy extraction, ParseOptions DoS limits, HTML meta tags, Miri, and licensing.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Frequently Asked Questions: Frontmatter Gen Technical FAQ",
+    "url": "https://frontmatter-gen.com/faqs/",
+    "wordCount": 1181
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Specification and delimiter reference for YAML 1.2 (noyalib), TOML 1.1 (toml), and JSON (serde_json) frontmatter extraction and serialization in Rust.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Supported Formats: YAML 1.2, TOML 1.1 & JSON Frontmatter",
+    "url": "https://frontmatter-gen.com/formats/",
+    "wordCount": 617
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Install frontmatter-gen v0.0.15 via Cargo, extract YAML 1.2, TOML, and JSON frontmatter in Rust, generate HTML meta tags, and run the fmg CLI.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Getting Started: Install Frontmatter Gen Crate & CLI",
+    "url": "https://frontmatter-gen.com/getting-started/",
+    "wordCount": 650
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Zero-copy frontmatter extraction and multi-format parsing library and CLI for YAML 1.2, TOML 1.1, and JSON in Rust with HTML meta tag synthesis and zero unsafe code.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Frontmatter Gen: Zero-Copy YAML 1.2, TOML & JSON in Rust",
+    "url": "https://frontmatter-gen.com/index.html",
+    "wordCount": 1081
+  },
+  {
+    "date": "2026-10-31",
+    "description": "How frontmatter-gen.com is compiled with Rust Static Site Generator (SSG) and Skeletonic CSS with Subresource Integrity and CycloneDX SBOMs.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Made with Static Site Generator (SSG) | Web Platform",
+    "url": "https://frontmatter-gen.com/made-with-ssg/",
+    "wordCount": 73
+  },
+  {
+    "date": "2026-10-31",
+    "description": "You are currently offline. Cached Frontmatter Gen documentation pages remain available via the local Service Worker.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Offline Documentation Access | Frontmatter Gen",
+    "url": "https://frontmatter-gen.com/offline/",
+    "wordCount": 23
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Privacy policy for frontmatter-gen.com and the frontmatter-gen Rust crate: zero telemetry, zero tracking cookies, and local-only theme preferences.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Privacy Policy: Zero-Telemetry Documentation",
+    "url": "https://frontmatter-gen.com/privacy/",
+    "wordCount": 99
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Security architecture of frontmatter-gen v0.0.15: #![forbid(unsafe_code)], Miri Tree Borrows verification, 4 cargo-fuzz targets, ParseOptions budgets, and cargo-vet.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Security & Verification: Miri Tree Borrows, Fuzzing & Budgets",
+    "url": "https://frontmatter-gen.com/security/",
+    "wordCount": 438
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Terms of use and open-source licensing for frontmatter-gen and frontmatter-gen.com under the Apache-2.0 OR MIT dual license.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Terms of Use & Dual Open-Source Licensing",
+    "url": "https://frontmatter-gen.com/terms/",
+    "wordCount": 43
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Confirmation page for inquiries sent to the Frontmatter Gen maintainers.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Thank You for Your Inquiry | Frontmatter Gen",
+    "url": "https://frontmatter-gen.com/thanks/",
+    "wordCount": 32
+  },
+  {
+    "date": "2026-10-31",
+    "description": "Production patterns for frontmatter-gen in Rust static site generators, headless CMS ingestion pipelines, documentation linters, and SEO meta tag synthesis.",
+    "locale": "en-GB",
+    "tags": [],
+    "title": "Use Cases: Static Site Generators, CMS & CI Pipelines",
+    "url": "https://frontmatter-gen.com/use-cases/",
+    "wordCount": 532
+  }
+]

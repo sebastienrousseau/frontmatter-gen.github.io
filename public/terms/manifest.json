@@ -1,0 +1,12 @@
+{
+  "background_color": "#ffffff",
+  "description": "Terms of use and open-source licensing for frontmatter-gen and frontmatter-gen.com under the Apache-2.0 OR MIT dual lice",
+  "display": "standalone",
+  "icons": [],
+  "name": "Frontmatter Gen",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "frontmatter-",
+  "start_url": ".",
+  "theme_color": "#8f250c"
+}

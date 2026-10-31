@@ -1,0 +1,17 @@
+# SPDX-FileCopyrightText: 2024-2026 Sebastien Rousseau
+# SPDX-License-Identifier: Apache-2.0 OR MIT
+cff-version: 1.2.0
+title: "frontmatter-gen.com: Zero-copy frontmatter extraction and multi-format parsing documentation"
+message: "If you use frontmatter-gen or its documentation, please cite it using this metadata."
+type: software
+authors:
+  - family-names: Rousseau
+    given-names: Sebastien
+    website: "https://sebastienrousseau.com"
+repository-code: "https://github.com/sebastienrousseau/frontmatter-gen.github.io"
+url: "https://frontmatter-gen.com/"
+license:
+  - Apache-2.0
+  - MIT
+version: 0.0.1
+date-released: 2026-10-31

@@ -1,0 +1,2 @@
+User-agent: *
+Sitemap: https://frontmatter-gen.com/made-with-ssg/sitemap.xml

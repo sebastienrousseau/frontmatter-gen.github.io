@@ -1,0 +1,11 @@
+{
+  "background_color": "#ffffff",
+  "description": "Zero-copy frontmatter extraction and multi-format parsing library and CLI for YAML 1.2, TOML 1.1, and JSON in Rust with HTML meta tag synthesis and zero unsafe code.",
+  "display": "standalone",
+  "name": "Frontmatter Gen",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "short_name": "frontmatter-",
+  "start_url": ".",
+  "theme_color": "#8f250c"
+}
